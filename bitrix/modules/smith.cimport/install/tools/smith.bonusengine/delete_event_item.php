@@ -1,0 +1,1 @@
+<?require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/smith.cimport/tools/delete_event_item.php');?>

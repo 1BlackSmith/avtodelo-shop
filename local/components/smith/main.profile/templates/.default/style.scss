@@ -1,0 +1,27 @@
+.bmd-form-group {
+    position: relative;
+}
+
+.bmd-form-control-del {
+    width: 15px;
+    height: 15px;
+    top: 50% !important;
+    right: 0 !important;
+    left: auto !important;
+    pointer-events: auto !important;
+    cursor: pointer;
+    color: #d00 !important;
+}
+
+.bmd-form-control-line {
+    position: absolute;
+    top: 70%;
+    width: 0;
+    height: 1px;
+    background-color: rgb(170, 170, 170);
+    transition: all 0.2s ease-in-out;
+}
+
+.bmd-form-control-checkdel:checked + .bmd-form-control-line {
+    width: 95%;
+}

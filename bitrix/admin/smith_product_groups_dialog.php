@@ -1,0 +1,1 @@
+<?require ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/smith.b2b/admin/product_groups_dialog.php");?>
