@@ -1,0 +1,1 @@
+<?require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/smith.bonusengine/tools/get_module_events.php');?>

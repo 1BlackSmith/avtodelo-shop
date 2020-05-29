@@ -33,7 +33,8 @@ class OrderSave
     /**
      * ID платежных систем
      */
-    const CASHLESS_PAY = 17;
+    const CASHLESS_PAY_30 = 20;
+    const CASHLESS_PAY_14 = 17;
     const CARD_PAY = 12;
 
     /*
@@ -137,6 +138,9 @@ class OrderSave
                                 break;
                             case 17: 
                                 $deal = "Оплата по б/н с отсрочкой 14 дней";
+                                break;
+                            case 20: 
+                                $deal = "Оплата по б/н с отсрочкой 30 дней";
                                 break;
                         }
                         if (!empty($deal)) {

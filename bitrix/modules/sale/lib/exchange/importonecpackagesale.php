@@ -22,21 +22,25 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 	const PAY_DEALS = [
 		self::RETAIL => [
 			'Оплата при получении' => 11,
-			'Оплата картой 100%' => 0
+			'Оплата картой 100%' => 12
 		],
 		self::WHOLESALE => [
 			'Оплата при получении' => 15,
-			'Оплата картой 100%' => 0,
-			'Оплата по б/н с отсрочкой 14 дней' => 17
+			'Оплата картой 100%' => 12,
+			'Оплата по б/н с отсрочкой 14 дней' => 17,
+			'Оплата по б/н с отсрочкой 30 дней' => 20
 		]
 	];
 
 	protected function convert(array $documents)
 	{
 		$documentOrder = $this->getDocumentByTypeId(DocumentType::ORDER, $documents);
+		\Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($documentOrder, true), true);
 
 		if($documentOrder instanceof OrderDocument)
 		{
+			$orderAmount = $this->getOrderAmount($documentOrder);
+
 			//region Presset - create Shipment if Service in the Order by information from 1C
 			$documentShipment = $this->getDocumentByTypeId(DocumentType::SHIPMENT, $documents);
 			if($documentShipment == null)
@@ -67,14 +71,19 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 					$paymentFields['REK_VALUES']['PAY_SYSTEM_ID'] = $this->getPaySystem($documentOrder);
 					$paymentFields['REK_VALUES']['PAY_SYSTEM_ID_DEFAULT'] = $this->getDefaultPaySystem($documentOrder);
 
-					if ($paymentFields['REK_VALUES']['PAY_SYSTEM_ID']) {
+					if ($this->checkOrderAmount($paymentFields['AMOUNT'], $orderAmount)) {
 						$document->setFields($paymentFields);
 					}
+
+					\Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($document, true), true);
 				}
 
 				if($document instanceof OneC\ShipmentDocument)
 				{
 					$shimpentFields = $document->getFieldValues();
+					if ($this->isDeducted($documentOrder)) {
+						$shimpentFields['REK_VALUES']['DEDUCTED'] = 'Y';
+					}
 					$shimpentFields['REK_VALUES']['DELIVERY_SYSTEM_ID_DEFAULT'] = $this->getDefaultDeliverySystem($documentOrder);
 					$document->setFields($shimpentFields);
 				}
@@ -116,6 +125,39 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 		return isset($fields['REK_VALUES']['1C_TRACKING_NUMBER'])?$fields['REK_VALUES']['1C_TRACKING_NUMBER']:null;
 	}
 
+	protected function checkOrderAmount($paymentAmount, &$orderAmount)
+	{
+		$orderAmount -= $paymentAmount;
+
+		if ($orderAmount < 0) {
+			return false;
+		}
+
+		return true;
+	}
+
+	protected function getOrderAmount(OneC\OrderDocument $document)
+	{
+		$fields = $document->getFieldValues();
+		return $fields['AMOUNT'];
+	}
+
+	/**
+	 * @param OneC\OrderDocument $document
+	 * @return true if shipment is deducted
+	 */
+	protected function isDeducted(OneC\OrderDocument $document)
+	{
+		$fields = $document->getFieldValues();
+
+		if (is_set($fields['REK_VALUES']['1C_DELIVERY_DATE']) && 
+			is_set($fields['REK_VALUES']['DELIVERY_SYSTEM_ID'])) {
+			return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * @param OneC\OrderDocument $document
 	 * @return null|int
@@ -127,6 +169,7 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 		if ($fields['ID'] > 0) {
 			$order = Order::load($fields['ID']);
 			$personTypeId = $order->getPersonTypeId();
+			$paymentCollection = $order->getPaymentCollection();
 			$deal = null;
 
 			$propertyCollection = $order->getPropertyCollection();

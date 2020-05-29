@@ -829,7 +829,7 @@ class CSaleExport
 
 
 		$PaymentParam['filter']['ORDER_ID'] = $arOrder['ID'];
-        $PaymentParam['filter']['!@PAY_SYSTEM_ID'] = $notExportPaymentsId;
+        $PaymentParam['filter']['!@PAY_SYSTEM_ID'] = explode(',', $notExportPaymentsId);
 		$PaymentParam['filter']['!=EXTERNAL_PAYMENT'] = 'F';
 		$innerPS = 0;
 		$limit = 0;
@@ -1173,9 +1173,13 @@ class CSaleExport
 
 			$agentParams = (array_key_exists($arOrder["PERSON_TYPE_ID"], $arAgent) ? $arAgent[$arOrder["PERSON_TYPE_ID"]] : array() );
 
+            Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r('', true));
+
             $arResultPayment = self::getPayment($arOrder, $notExportPaymentsId);
             $paySystems = $arResultPayment['paySystems'];
             $arPayment = $arResultPayment['payment'];
+
+            Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($arPayment, true));
 
 			$arResultShipment = self::getShipment($arOrder);
 			$arShipment = $arResultShipment['shipment'];
