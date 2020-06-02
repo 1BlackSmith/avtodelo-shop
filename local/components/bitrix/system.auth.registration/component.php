@@ -75,7 +75,7 @@ $arRequestParams = array(
 	"USER_PASSWORD",
 	"USER_CONFIRM_PASSWORD",
 	"USER_PHONE_NUMBER",
-         "USER_PERSONAL_PHONE",
+    "USER_PERSONAL_PHONE",
 );
 
 foreach ($arRequestParams as $param)
