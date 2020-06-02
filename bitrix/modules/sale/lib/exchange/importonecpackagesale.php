@@ -35,7 +35,6 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 	protected function convert(array $documents)
 	{
 		$documentOrder = $this->getDocumentByTypeId(DocumentType::ORDER, $documents);
-		\Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($documentOrder, true), true);
 
 		if($documentOrder instanceof OrderDocument)
 		{
@@ -74,8 +73,6 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 					if ($this->checkOrderAmount($paymentFields['AMOUNT'], $orderAmount)) {
 						$document->setFields($paymentFields);
 					}
-
-					\Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($document, true), true);
 				}
 
 				if($document instanceof OneC\ShipmentDocument)
