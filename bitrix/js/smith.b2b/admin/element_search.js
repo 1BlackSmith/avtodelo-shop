@@ -10,7 +10,18 @@ ElementSearch.prototype.getDefaultProps = function()
         event: 'onSelectElement',
         lang: 'ru',
         allow_select_parent: 'Y',
-        url: '/bitrix/admin/cat_product_search_dialog.php'
+        url: '/bitrix/admin/cat_product_search_dialog.php',
+        buttons: [
+            {
+                title: BX.message('JS_CORE_WINDOW_SAVE'),
+                id: 'savebtn',
+                name: 'savebtn',
+                className: BX.browser.IsIE() && BX.browser.IsDoctype() && !BX.browser.IsIE10() ? '' : 'adm-btn-save',
+                action: () => {
+                    this._dialogSearch.Close();
+                }
+            }
+        ]
     }
 }
 
@@ -22,22 +33,14 @@ ElementSearch.prototype.compileUrl = function()
 ElementSearch.prototype.dialogSearch = function() 
 {
     this._dialogSearch = new BX.CDialog({
-        title: 'Поиск элементов',
+        title: this.props.title || 'Поиск элементов',
         width: 1350,
         height: 800,
         content_url: this.compileUrl(),
         ESD: true
     });
 
-    this._dialogSearch.SetButtons([{
-        title: BX.message('JS_CORE_WINDOW_SAVE'),
-        id: 'savebtn',
-        name: 'savebtn',
-        className: BX.browser.IsIE() && BX.browser.IsDoctype() && !BX.browser.IsIE10() ? '' : 'adm-btn-save',
-        action: () => {
-        this._dialogSearch.Close();
-        }
-    }]);
+    this._dialogSearch.SetButtons(this.props.buttons);
 
     return this;
 }

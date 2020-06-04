@@ -92,14 +92,11 @@ function getImageField($property_value_id,$property_value)
 	return $res;
 }
 
-
 $arProps = $arResult['PROPS'];
 $arSKUProps = $arResult['SKU_PROPS'];
 $arFilter = $arResult['FILTER'];
 
 $tableId = CUtil::JSEscape($arResult['TABLE_ID']);
-
-\Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log1.txt', print_r($tableId, true));
 
 // START TEMPLATE
 $APPLICATION->SetAdditionalCSS('/bitrix/panel/main/admin.css');
@@ -143,7 +140,7 @@ foreach ($arResult['PRODUCTS'] as $arItems)
 	$arCatalogProduct = $arItems['PRODUCT'];
 
 	$row = &$lAdmin->AddRow($arItems["ID"], $arItems);
-
+	Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($arItems, true));
 	$row->AddField("ACTIVE", $arItems["ACTIVE"] == 'Y' ? GetMessage('SPS_PRODUCT_ACTIVE') : GetMessage('SPS_PRODUCT_NO_ACTIVE'));
 	$row->AddViewFileField('PREVIEW_PICTURE', $viewFileParams);
 	$row->AddViewFileField('DETAIL_PICTURE', $viewFileParams);

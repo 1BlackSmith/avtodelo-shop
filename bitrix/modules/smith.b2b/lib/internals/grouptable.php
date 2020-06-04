@@ -31,14 +31,14 @@ class GroupTable extends DataManager
                 'primary'      => true,
                 'autocomplete' => true,
             )),
-            (new Relations\OneToMany(
-                'PRODUCTS', 
-                GroupProductTable::class, 
-                'GROUP'
-            ))->configureJoinType('inner'),
             new Fields\StringField('NAME', array(
                 'required' => true
             )),
+            (new Relations\OneToMany(
+                'PRODUCTS', 
+                '\Smith\B2B\Internals\GroupProductTable', 
+                'GROUP'
+            ))->configureJoinType('inner'),
         );
     }
 }

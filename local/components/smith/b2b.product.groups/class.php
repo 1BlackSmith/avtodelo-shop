@@ -5,6 +5,8 @@ use Bitrix\Main,
 	Bitrix\Iblock,
 	Bitrix\Catalog;
 
+use \Smith\B2B\ProductGroups;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 class ProductSearchComponent extends \CBitrixComponent
@@ -261,131 +263,23 @@ class ProductSearchComponent extends \CBitrixComponent
 		$validatedSelect = is_array($arSelectedFields);
 		$emptySelect = empty($arSelectedFields) || !$validatedSelect || ($validatedSelect && in_array('*', $arSelectedFields));
 
-		$elementInherentFilter = self::getElementInherentFilter($arFilter);
+		$arElementFilter = [
+			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+			"ID" => ProductGroups::getProductsId(14)
+		];
 
-		$notFound = false;
-		if (isset($arFilter["S_ID"]) && is_array($arFilter["S_ID"]) && count($arFilter["S_ID"]) == 1)
+		if (!is_array($arSelectedFields))
+			$arSelectedFields = array("ID", "IBLOCK_ID", "IBLOCK_SECTION_ID", "ACTIVE", "SORT", "NAME",
+				"PREVIEW_PICTURE", "PREVIEW_TEXT", "PREVIEW_TEXT_TYPE", "DETAIL_PICTURE", "DETAIL_TEXT", "DETAIL_TEXT_TYPE",
+				"SHOW_COUNTER", "SHOW_COUNTER_START", "CODE", "EXTERNAL_ID"
+			);
+
+		$obElement = new \CIBlockElement;
+		$rsElement = $obElement->GetList($arOrder, $arElementFilter, false, false, $arSelectedFields);
+		while ($arElement = $rsElement->Fetch())
 		{
-			$notFound = $arFilter['S_ID'][0] == 0;
-		}
-		if (!$notFound && !$this->isFiltering())
-		{
-			$arSectionFilter = [
-				"IBLOCK_ID" => $arFilter["IBLOCK_ID"]
-			];
-			if (isset($arFilter["S_ID"]))
-				$arSectionFilter["=ID"] = $arFilter["S_ID"];
-			if (isset($arFilter["NAME"]))
-			{
-				if ($arFilter['USE_SUBSTRING_QUERY'] == 'Y')
-					$arSectionFilter["%NAME"] = $arFilter["NAME"];
-				else
-					$arSectionFilter["?NAME"] = $arFilter["NAME"];
-			}
-			if (isset($arFilter["DATE_MODIFY_FROM"]))
-				$arSectionFilter[">=TIMESTAMP_X"] = $arFilter["DATE_MODIFY_FROM"];
-			if (isset($arFilter["DATE_MODIFY_TO"]))
-				$arSectionFilter["<=TIMESTAMP_X"] = $arFilter["DATE_MODIFY_TO"];
-			if (isset($arFilter["CODE"]))
-				$arSectionFilter["CODE"] = $arFilter["CODE"];
-			if (isset($arFilter["ACTIVE"]))
-				$arSectionFilter["ACTIVE"] = $arFilter["ACTIVE"];
-
-			if (isset($arFilter["CHECK_PERMISSIONS"]))
-			{
-				$arSectionFilter['CHECK_PERMISSIONS'] = $arFilter["CHECK_PERMISSIONS"];
-				$arSectionFilter['MIN_PERMISSION'] = (isset($arFilter['MIN_PERMISSION']) ? $arFilter['MIN_PERMISSION'] : 'R');
-			}
-			if (array_key_exists("SECTION_ID", $arFilter))
-			{
-				if (!array_key_exists("INCLUDE_SUBSECTIONS", $arFilter))
-				{
-					$arSectionFilter['SECTION_ID'] = $arFilter['SECTION_ID'];
-				}
-				elseif (!$this->isAdvancedSearchAvailable() && $margin = $this->getSectionMargin($arFilter['SECTION_ID']))
-				{
-					$arSectionFilter['>LEFT_MARGIN'] = $margin['LEFT_MARGIN'];
-					$arSectionFilter['<RIGHT_MARGIN'] = $margin['RIGHT_MARGIN'];
-					$arSectionFilter['>DEPTH_LEVEL'] = $margin['DEPTH_LEVEL'];
-				}
-			}
-
-			$obSection = new \CIBlockSection;
-			$rsSection = $obSection->GetList($arOrder, $arSectionFilter, $bIncCnt);
-			while ($arSection = $rsSection->Fetch())
-			{
-				$arSection["TYPE"] = "S";
-				$arResult[] = $arSection;
-			}
-		}
-		$notFound = false;
-		if (isset($arFilter["ID"]) && is_array($arFilter["ID"]) && sizeof($arFilter["ID"]) == 1)
-		{
-			$notFound = $arFilter['ID'][0] == 0;
-		}
-		if (!$notFound)
-		{
-			$arElementFilter = [
-				"IBLOCK_ID" => $arFilter["IBLOCK_ID"]
-			];
-			if (isset($arFilter["NAME"]))
-			{
-				if ($arFilter['USE_SUBSTRING_QUERY'] == 'Y')
-					$arElementFilter["%NAME"] = $arFilter["NAME"];
-				else
-					$arElementFilter["?NAME"] = $arFilter["NAME"];
-			}
-			if (isset($arFilter["SECTION_ID"]))
-				$arElementFilter["SECTION_ID"] = $arFilter["SECTION_ID"];
-			if (isset($arFilter["ID"]))
-				$arElementFilter["=ID"] = $arFilter["ID"];
-			if (isset($arFilter["DATE_MODIFY_FROM"]))
-				$arElementFilter[">=TIMESTAMP_X"] = $arFilter["DATE_MODIFY_FROM"];
-			if (isset($arFilter["DATE_MODIFY_TO"]))
-				$arElementFilter["<=TIMESTAMP_X"] = $arFilter["DATE_MODIFY_TO"];
-			if (isset($arFilter["CODE"]))
-				$arElementFilter["CODE"] = $arFilter["CODE"];
-			if (isset($arFilter["ACTIVE"]))
-				$arElementFilter["ACTIVE"] = $arFilter["ACTIVE"];
-			if (isset($arFilter["WF_STATUS"]))
-				$arElementFilter["WF_STATUS"] = $arFilter["WF_STATUS"];
-			if (isset($arFilter["INCLUDE_SUBSECTIONS"]))
-				$arElementFilter['INCLUDE_SUBSECTIONS'] = $arFilter["INCLUDE_SUBSECTIONS"];
-
-			if(!empty($arFilter['XML_ID']))
-				$arElementFilter['XML_ID'] = $arFilter['XML_ID'];
-			if(!empty($arFilter['>=ID']))
-				$arElementFilter['>=ID'] = $arFilter['>=ID'];
-			if(!empty($arFilter['<=ID']))
-				$arElementFilter['<=ID'] = $arFilter['<=ID'];
-
-			if (isset($arFilter["CHECK_PERMISSIONS"]))
-			{
-				$arElementFilter['CHECK_PERMISSIONS'] = $arFilter["CHECK_PERMISSIONS"];
-				$arElementFilter['MIN_PERMISSION'] = (isset($arFilter['MIN_PERMISSION']) ? $arFilter['MIN_PERMISSION'] : 'S');
-			}
-
-			if (!empty($elementInherentFilter))
-				$arElementFilter = $arElementFilter + $elementInherentFilter;
-
-			if (strlen($arFilter["SECTION_ID"]) <= 0)
-				unset($arElementFilter["SECTION_ID"]);
-
-			if (!is_array($arSelectedFields))
-				$arSelectedFields = array("ID", "IBLOCK_ID", "IBLOCK_SECTION_ID", "ACTIVE", "SORT", "NAME",
-					"PREVIEW_PICTURE", "PREVIEW_TEXT", "PREVIEW_TEXT_TYPE", "DETAIL_PICTURE", "DETAIL_TEXT", "DETAIL_TEXT_TYPE",
-					"SHOW_COUNTER", "SHOW_COUNTER_START", "CODE", "EXTERNAL_ID"
-				);
-
-			if (isset($arFilter["CHECK_BP_PERMISSIONS"]))
-				$arElementFilter["CHECK_BP_PERMISSIONS"] = $arFilter["CHECK_BP_PERMISSIONS"];
-			$obElement = new \CIBlockElement;
-			$rsElement = $obElement->GetList($arOrder, $arElementFilter, false, false, $arSelectedFields);
-			while ($arElement = $rsElement->Fetch())
-			{
-				$arElement["TYPE"] = "E";
-				$arResult[] = $arElement;
-			}
+			$arElement["TYPE"] = "E";
+			$arResult[] = $arElement;
 		}
 
 		unset($elementInherentFilter);

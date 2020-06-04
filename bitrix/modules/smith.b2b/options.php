@@ -163,7 +163,28 @@ $tabControl = new CAdminTabControl('tabControl', $aTabs);
 <script>
     var dialog = new ElementSearch({
         IBLOCK_ID: 3,
-        url: '/bitrix/admin/smith_product_groups_dialog.php'
+        url: '/bitrix/admin/smith_product_groups_dialog.php',
+        title: 'Какая-то группа товаров',
+        buttons: [
+            {
+                title: BX.message('JS_CORE_WINDOW_SAVE'),
+                id: 'savebtn',
+                name: 'savebtn',
+                className: BX.browser.IsIE() && BX.browser.IsDoctype() && !BX.browser.IsIE10() ? '' : 'adm-btn-save',
+                action: () => {
+                    dialog.getDialog().Close();
+                }
+            },
+            {
+                title: 'Добавить',
+                id: 'addbtn',
+                name: 'addbtn',
+                className: BX.browser.IsIE() && BX.browser.IsDoctype() && !BX.browser.IsIE10() ? '' : 'adm-btn',
+                action: () => {
+                    //this._dialogSearch.Close();
+                }
+            }
+        ]
     });
     dialog.dialogSearch().getDialog().Show();
 
