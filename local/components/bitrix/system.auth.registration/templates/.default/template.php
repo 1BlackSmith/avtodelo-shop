@@ -35,13 +35,13 @@ CJSCore::Init(['masked_input']);
 
             <div class="form-group bmd-form-group">
                 <label for="INPUT_USER_NAME" class="bmd-label-floating"><?=Loc::getMessage('AUTH_NAME');?> <span class="text-danger">*</span></label>
-                <input type="text" name="USER_NAME" id="INPUT_USER_NAME" maxlength="255" value="<?=$arResult["USER_NAME"]?>" class="bmd-form-control" required pattern="^[А-Я]{1}[а-я]+$">
+                <input type="text" name="USER_NAME" id="INPUT_USER_NAME" maxlength="255" value="<?=$arResult["USER_NAME"]?>" class="bmd-form-control" required pattern="^[А-ЯЁ]{1}[а-яё]+$">
                 <div class="invalid-feedback"><?=Loc::getMessage('MSG_NAME_HINT');?></div>
             </div>
 
             <div class="form-group bmd-form-group">
                 <label for="INPUT_USER_LAST_NAME" class="bmd-label-floating"><?=Loc::getMessage('AUTH_LAST_NAME');?></label>
-                <input type="text" name="USER_LAST_NAME" id="INPUT_USER_LAST_NAME" maxlength="255" value="<?=$arResult["USER_LAST_NAME"]?>" class="bmd-form-control" pattern="^[А-Я]{1}[а-я]+$">
+                <input type="text" name="USER_LAST_NAME" id="INPUT_USER_LAST_NAME" maxlength="255" value="<?=$arResult["USER_LAST_NAME"]?>" class="bmd-form-control" pattern="^[А-ЯЁ]{1}[а-яё]+$">
                 <div class="invalid-feedback"><?=Loc::getMessage('MSG_LAST_NAME_HINT');?></div>
             </div>
 
