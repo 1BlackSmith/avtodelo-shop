@@ -2731,31 +2731,18 @@ class CBitrixBasketComponent extends CBitrixComponent
 		if ($this->isGift($basketItem))
 			return 0;
 
-		/** @var Integer $userId ID пользователя */
-		$userId = $this->getUserId();
-
-		$perssoTypeId = 3;
-
-		if ($userId) 
+		if ($userId = $this->getUserId()) 
 		{
-			$priceId = $this->getPersonPriceType($userId);
+			$arPrice = \Bitrix\Catalog\PriceTable::getRow([
+				"select" => ["PRICE", "CURRENCY"],
+				"filter" => [
+					"PRODUCT_ID" => 550,
+					"CATALOG_GROUP_ID" => $this->getPersonPriceType($userId)
+				]
+			]);
 
-	    	$rsPrices = CPrice::GetList(
-		        array(),
-		        array(
-		          'PRODUCT_ID' => $basketItem->getProductId(),
-		          'CATALOG_GROUP_ID' => $priceId,
-		        )
-	       	);
-
-	    	CModule::IncludeModule("currency");
-	       	
-	       	if ($arPrice = $rsPrices->Fetch())
-			{
-				return CCurrencyRates::ConvertCurrency($arPrice['PRICE'], $arPrice['CURRENCY'], "RUB");
-			}
-			
-			return $basketItem->getField('BASE_PRICE');
+			CModule::IncludeModule("currency");
+			return CCurrencyRates::ConvertCurrency($arPrice['PRICE'], $arPrice['CURRENCY'], "RUB");
 		}
 
 		return false;
@@ -2769,21 +2756,15 @@ class CBitrixBasketComponent extends CBitrixComponent
 	 */
 	protected function getPersonPriceType($userId)
 	{
-		\Bitrix\Main\Loader::includeModule("catalog");
-
 		$personPriceGroups = \Bitrix\Catalog\GroupAccessTable::getList([
 			"select" => ["CATALOG_GROUP_ID"],
 			"filter" => [
-		    	"=GROUP_ID" => CUser::GetUserGroup($userId),
-		    	"=ACCESS" => 'Y'
-			]
+		    	"GROUP_ID" => CUser::GetUserGroup($userId),
+		    	"ACCESS" => 'Y'
+			],
+			"order" => ["CATALOG_GROUP_ID" => "ASC"]
 		])->fetchAll();
-		$personPriceGroups = array_map(function($item) {
-			return $item['CATALOG_GROUP_ID'];
-		}, $personPriceGroups);
-
-		// Самый последний тип цены минимальный
-		return array_pop($personPriceGroups);
+		return array_pop($personPriceGroups)["CATALOG_GROUP_ID"];
 	}
 
 	protected function getPrepayment()
