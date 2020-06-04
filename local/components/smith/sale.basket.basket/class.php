@@ -2736,7 +2736,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			$arPrice = \Bitrix\Catalog\PriceTable::getRow([
 				"select" => ["PRICE", "CURRENCY"],
 				"filter" => [
-					"PRODUCT_ID" => 550,
+					"PRODUCT_ID" => $basketItem->getProductId(),
 					"CATALOG_GROUP_ID" => $this->getPersonPriceType($userId)
 				]
 			]);
