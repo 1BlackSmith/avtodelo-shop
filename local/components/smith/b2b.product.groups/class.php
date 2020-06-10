@@ -11,7 +11,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 class ProductSearchComponent extends \CBitrixComponent
 {
-	const TABLE_ID_PREFIX = 'tbl_product_search';
+	const TABLE_ID_PREFIX = 'tbl_product_groups';
 
 	protected $iblockId;
 	protected $arProps;
@@ -117,6 +117,9 @@ class ProductSearchComponent extends \CBitrixComponent
 		if (!empty($_REQUEST['IBLOCK_ID']))
 			$params['IBLOCK_ID'] = (int)$_REQUEST['IBLOCK_ID'];
 		$params['SECTION_ID'] = isset($_REQUEST['SECTION_ID']) ? (int)$_REQUEST['SECTION_ID'] : 0;
+		$params['GROUP_ID'] = isset($params['GROUP_ID']) ? (int)$params['GROUP_ID'] : 0;
+		if (!empty($_REQUEST['GROUP_ID']))
+			$params['GROUP_ID'] = (int)$_REQUEST['GROUP_ID'];
 
 		if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'change_iblock')
 		{
@@ -257,32 +260,33 @@ class ProductSearchComponent extends \CBitrixComponent
 	{
 		$arResult = array();
 
-		if (!is_array($arOrder))
-			$arOrder = array("SORT"=>"ASC");
-
-		$validatedSelect = is_array($arSelectedFields);
-		$emptySelect = empty($arSelectedFields) || !$validatedSelect || ($validatedSelect && in_array('*', $arSelectedFields));
-
-		$arElementFilter = [
-			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
-			"ID" => ProductGroups::getProductsId(14)
-		];
-
-		if (!is_array($arSelectedFields))
-			$arSelectedFields = array("ID", "IBLOCK_ID", "IBLOCK_SECTION_ID", "ACTIVE", "SORT", "NAME",
-				"PREVIEW_PICTURE", "PREVIEW_TEXT", "PREVIEW_TEXT_TYPE", "DETAIL_PICTURE", "DETAIL_TEXT", "DETAIL_TEXT_TYPE",
-				"SHOW_COUNTER", "SHOW_COUNTER_START", "CODE", "EXTERNAL_ID"
-			);
-
-		$obElement = new \CIBlockElement;
-		$rsElement = $obElement->GetList($arOrder, $arElementFilter, false, false, $arSelectedFields);
-		while ($arElement = $rsElement->Fetch())
+		if ($productsId = ProductGroups::getProductsId($this->getGroupId())) 
 		{
-			$arElement["TYPE"] = "E";
-			$arResult[] = $arElement;
-		}
+			if (!is_array($arOrder))
+				$arOrder = array("SORT"=>"ASC");
 
-		unset($elementInherentFilter);
+			$validatedSelect = is_array($arSelectedFields);
+			$emptySelect = empty($arSelectedFields) || !$validatedSelect || ($validatedSelect && in_array('*', $arSelectedFields));
+
+			$arElementFilter = [
+				"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+				"ID" => $productsId
+			];
+
+			if (!is_array($arSelectedFields))
+				$arSelectedFields = array("ID", "IBLOCK_ID", "IBLOCK_SECTION_ID", "ACTIVE", "SORT", "NAME",
+					"PREVIEW_PICTURE", "PREVIEW_TEXT", "PREVIEW_TEXT_TYPE", "DETAIL_PICTURE", "DETAIL_TEXT", "DETAIL_TEXT_TYPE",
+					"SHOW_COUNTER", "SHOW_COUNTER_START", "CODE", "EXTERNAL_ID"
+				);
+
+			$obElement = new \CIBlockElement;
+			$rsElement = $obElement->GetList($arOrder, $arElementFilter, false, false, $arSelectedFields);
+			while ($arElement = $rsElement->Fetch())
+			{
+				$arElement["TYPE"] = "E";
+				$arResult[] = $arElement;
+			}
+		}
 
 		$rsResult = new \CDBResult;
 		$rsResult->InitFromArray($arResult);
@@ -910,6 +914,11 @@ class ProductSearchComponent extends \CBitrixComponent
 	protected function getStoreId()
 	{
 		return $this->arParams['store_from_id'];
+	}
+
+	protected function getGroupId()
+	{
+		return $this->arParams['GROUP_ID'];
 	}
 
 	protected function getIblockId()

@@ -4,6 +4,8 @@ namespace Smith\B2B;
 use Smith\B2B\Internals\GroupProductTable;
 use Smith\B2B\Internals\GroupTable;
 
+use \CAdminMessage;
+
 class ProductGroups 
 {
     public static function addGroup(String $name)
@@ -15,13 +17,14 @@ class ProductGroups
 
     public static function addProduct($groupId, $productId, $save = true)
     {
-        try {
-            if (!$productId) {
-                throw new \Bitrix\Main\ArgumentException("ID Продукта не должен быть равен 0");
-            }  
-        } catch (\Bitrix\Main\ArgumentException $e) {
-            \CAdminMessage::ShowMessage($e->getMessage());
+        if (static::getProductObj($groupId, $productId) !== null) {
+            throw new \Bitrix\Main\DB\SqlException("Товар уже добавлен в группу");
+            return;
         }
+        if (!$productId) {
+            throw new \Bitrix\Main\ArgumentException("ID Продукта не должен быть равен 0");
+            return;
+        }  
 
         $group = GroupTable::wakeUpObject($groupId);
         $newProduct = GroupProductTable::createObject();
@@ -52,15 +55,31 @@ class ProductGroups
     public static function deleteGroup($id)
     {
         $group = GroupTable::wakeUpObject($id);
+        $group->fill();
+        
+        if ($group->getName() === null) {
+            throw new \Bitrix\Main\DB\SqlException("Группа не найдена");
+        }
+
         $group->removeAllProducts();
         $group->delete();
     }
 
     public static function deleteProduct($groupId, $productId)
     {
-        GroupProductTable::getList([
-            'filter' => ['GROUP_ID' => $groupId, 'PRODUCT_ID' => $productId]
-        ])->fetchObject()->delete();
+        $product = static::getProductObj($groupId, $productId);
+        if ($product instanceof \Smith\B2B\Internals\EO_GroupProduct) {
+            $product->delete();
+        } else {
+            throw new \Bitrix\Main\DB\SqlException("Ошибка удаления товара из группы");
+        }
+    }
+
+    public static function renameGroup($id, $name)
+    {
+        $group = GroupTable::wakeUpObject($id);
+        $group->setName($name);
+        return static::saveObj($group);
     }
 
     public static function getGroups()
@@ -79,6 +98,34 @@ class ProductGroups
         return $productsId;
     }
 
+    public static function hasProduct($groupId, $productId)
+    {
+        $product = static::getProductObj($groupId, $productId);
+        return empty($product) ? false : true;
+    }
+
+    public static function checkProduct($id, $iblockId, $name)
+    {
+        $arOrder = array('SORT' => 'ASC');
+        $arSelectedFields = array('ID');
+        $arElementFilter = array(
+            '=IBLOCK_ID' => $iblockId,
+            '=ID' => $id,
+            'NAME' => $name
+        );
+        $rsElement = \CIBlockElement::GetList($arOrder, $arElementFilter, false, false, $arSelectedFields);
+        return $rsElement->SelectedRowsCount() ? true : false;
+    }
+
+    protected static function getProductObj($groupId, $productId)
+    {
+        return GroupProductTable::getList([
+            'select' => ['*'],
+            'filter' => ['=GROUP_ID' => $groupId, '=PRODUCT_ID' => $productId],
+            'limit' => 1
+        ])->fetchObject();
+    }
+
     protected static function collectArValues($collection)
     {
         $arr = [];
@@ -90,29 +137,21 @@ class ProductGroups
 
     protected static function saveObj($obj)
     {
-        try {
-            $obj->save();
-            if ($obj->primary['ID'] > 0) {
-                return $obj;
-            } else {
-                throw new \Bitrix\Main\DB\SqlException("Ошибка сохранения сущности ".get_class($obj));
-            }
-        } catch (\Bitrix\Main\DB\SqlException $e) {
-            \CAdminMessage::ShowMessage($e->getMessage());
+        $obj->save();
+        if ($obj->primary['ID'] > 0) {
+            return $obj;
+        } else {
+            throw new \Bitrix\Main\DB\SqlException("Ошибка сохранения сущности ".get_class($obj));
         }
     }
 
     protected static function saveCollection($objCollection)
     {
-        try {
-            $objCollection->save();
-            if (count($objCollection->getIdList() > 0)) {
-                return $objCollection;
-            } else {
-                throw new \Bitrix\Main\DB\SqlException("Ошибка сохранения сущности ".get_class($objCollection));
-            }
-        } catch (\Bitrix\Main\DB\SqlException $e) {
-            \CAdminMessage::ShowMessage($e->getMessage());
+        $objCollection->save();
+        if (count($objCollection->getIdList() > 0)) {
+            return $objCollection;
+        } else {
+            throw new \Bitrix\Main\DB\SqlException("Ошибка сохранения сущности ".get_class($objCollection));
         }
     }
 }
