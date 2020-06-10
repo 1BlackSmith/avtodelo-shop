@@ -1,0 +1,1 @@
+<?require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/smith.b2b/tools/add_product_in_group.php');?>

@@ -36,7 +36,7 @@ class GroupProductTable extends DataManager
             )),
             (new Relations\Reference(
                 'GROUP',
-                GroupTable::class,
+                '\Smith\B2B\Internals\GroupTable', 
                 Join::on('this.GROUP_ID', 'ref.ID')
             ))->configureJoinType('inner'),
 

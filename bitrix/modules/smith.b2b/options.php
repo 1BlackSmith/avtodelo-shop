@@ -3,6 +3,7 @@
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Config\Option;
 use \Smith\B2B\CompanyTable;
+use \Smith\B2B\ProductGroups;
 
 $module_id = "smith.b2b";
 
@@ -59,6 +60,21 @@ if ($request->isPost() && check_bitrix_sessid()) {
 
         if ($request['B2B_MANAGER_ORDER_GROUP_ID']) {
             Option::set($module_id, 'B2B_MANAGER_ORDER_GROUP_ID', $request['B2B_MANAGER_ORDER_GROUP_ID']);
+        }
+
+        if (is_set($request['B2B_CATALOG_GROUP_ID']) && is_array($request['B2B_CATALOG_GROUP_ID'])) {
+            $groupsId = $request['B2B_CATALOG_GROUP_ID'];
+            $groupsName = $request['B2B_CATALOG_GROUP_NAME'];
+            for ($i = 0; $i < count($groupsId); $i++) { 
+                if (!trim($groupsName[$i])) {
+                    continue;
+                }
+                if ($groupsId[$i]) {
+                    ProductGroups::renameGroup($groupsId[$i], $groupsName[$i]);
+                } else {
+                    ProductGroups::addGroup($groupsName[$i]);
+                }
+            }
         }
     }
 
@@ -136,18 +152,56 @@ $tabControl = new CAdminTabControl('tabControl', $aTabs);
 
             case "catalog_groups": 
                 $tabControl->BeginNextTab();
+                foreach (ProductGroups::getGroups() as $group):
 ?>
                 <tr>
-                    <td>
-                        <input type="text" name="B2B_CATALOG_GROUP[]" placeholder="<?= Loc::getMessage("SMITH_B2B_CATALOG_GROUP") ?>">
+                    <td width="40%">
+                        <input type="hidden" name="B2B_CATALOG_GROUP_ID[]" value="<?=$group['ID']?>">
+                        <input type="text" name="B2B_CATALOG_GROUP_NAME[]" value="<?=$group['NAME']?>" size="30">
+                    </td>
+                    <td width="154">
+                        <a href="javascript:void(0)" onclick="openProductsGroupPopup(<?=$group['ID']?>, '<?=$group['NAME']?>')" class="adm-btn"><?= Loc::getMessage("SMITH_B2B_OPEN_PRODUCTS") ?></a>
                     </td>
                     <td>
-                        <a href="javascript:void(0)" onclick="openElementSearch(this)" class="adm-btn"><?= Loc::getMessage("SMITH_B2B_OPEN_ELEMENT_SEARCH") ?></a>
-                        <input type="hidden" name="B2B_CATALOG_PRODUCTS[] ">
+                        <a href="javascript:void(0)" onclick="deleteGroup(this, <?=$group['ID']?>)" class="adm-btn"><?= Loc::getMessage("SMITH_B2B_DELETE") ?></a>
                     </td>
                 </tr>
 <?
+                endforeach;
+?>
+                <tr id="example-group" style="display: none">
+                    <td width="40%">
+                        <input type="hidden" name="B2B_CATALOG_GROUP_ID[]" value="0">
+                        <input type="text" name="B2B_CATALOG_GROUP_NAME[]" size="30" placeholder="<?= Loc::getMessage("SMITH_B2B_CATALOG_GROUP") ?>">
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td width="40%">
+                        <input type="hidden" name="B2B_CATALOG_GROUP_ID[]" value="0">
+                        <input type="text" name="B2B_CATALOG_GROUP_NAME[]" size="30" placeholder="<?= Loc::getMessage("SMITH_B2B_CATALOG_GROUP") ?>">
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="javascript:void(0)" onclick="addGroup(this)" class="adm-btn"><?= Loc::getMessage("SMITH_B2B_ADD_GROUP") ?></a>
+                    </td>
+                    <td></td>
+                </tr>
+                <script>
+                    function addGroup(el) {
+                        var row = BX.findParent(el, {tagName: 'tr'});
+                        var tbl = row.parentNode;
 
+                        var example = BX('example-group').cloneNode(true);
+                        example.style = '';
+                        example.id = '';
+
+                        tbl.insertBefore(example, row);
+                    }
+                </script>
+<?
                 break;
 
             case "rights":
@@ -161,16 +215,125 @@ $tabControl = new CAdminTabControl('tabControl', $aTabs);
 ?>
 
 <script>
-    var dialog = new ElementSearch({
-        IBLOCK_ID: 3,
-        url: '/bitrix/admin/smith_product_groups_dialog.php'
-    });
-    dialog.dialogSearch().getDialog().Show();
+    function deleteGroup(a, groupId) {
+        BX.ajax({  
+            url: '/bitrix/tools/smith.b2b/delete_group.php',
+            data: { id: groupId },
+            method: 'POST',
+            dataType: 'json',
+            timeout: 30,
+            async: false,
+            processData: true,
+            scriptsRunFirst: true,
+            emulateOnload: true,
+            start: true,
+            cache: false,
+            onsuccess: function (data) {
+                if (data['STATUS'] === 'OK') {
+                    var row = BX.findParent(a, { "tag": "tr"});
+                    BX.cleanNode(row, true);
+                } else {
+                    alert(data['ERRORS']);
+                }
+            }
+        });
+    }
+</script>
+<script>
+    function openCatalogPopup(productsGroupPopup, groupId) {
+        var catalogPopup = new ElementSearch({
+            IBLOCK_ID: 3,
+            url: '/bitrix/admin/cat_product_search_dialog.php',
+            buttons: [
+                {
+                    title: BX.message('JS_CORE_WINDOW_SAVE'),
+                    id: 'savebtn',
+                    name: 'savebtn',
+                    className: BX.browser.IsIE() && BX.browser.IsDoctype() && !BX.browser.IsIE10() ? '' : 'adm-btn-save',
+                    action: () => {
+                        productsGroupPopup.getDialog().Close();
+                        productsGroupPopup.refreshDialog();
+                    }
+                }
+            ]
+        });
+        catalogPopup.dialogSearch().getDialog().Show();
+        BX.addCustomEvent(catalogPopup.getEvent(), (dataEvent) => {
+            dataEvent.group = groupId;
+            BX.ajax({  
+                url: '/bitrix/tools/smith.b2b/add_product_in_group.php',
+                data: dataEvent,
+                method: 'POST',
+                dataType: 'json',
+                timeout: 30,
+                async: false,
+                processData: true,
+                scriptsRunFirst: true,
+                emulateOnload: true,
+                start: true,
+                cache: false,
+                onsuccess: function (data) {
+                    if (data['STATUS'] === 'OK') {
+                        //
+                    } else {
+                        alert(data['ERRORS']);
+                    }
+                }
+            });
+        });
+    }
 
-    BX.addCustomEvent(dialog.getEvent(), (dataEvent) => {
-        console.info(dataEvent); 
-        //dialog.getDialog().Close();
-    });
+    function openProductsGroupPopup(groupId, groupName) {
+        var productsGroupPopup = new ElementSearch({
+            IBLOCK_ID: 3,
+            GROUP_ID: groupId,
+            url: '/bitrix/admin/smith_product_groups_dialog.php',
+            title: groupName,
+            buttons: [
+                {
+                    title: 'Добавить',
+                    id: 'addbtn',
+                    name: 'addbtn',
+                    className: BX.browser.IsIE() && BX.browser.IsDoctype() && !BX.browser.IsIE10() ? '' : 'adm-btn-save',
+                    action: () => { 
+                        openCatalogPopup.call(false, productsGroupPopup, groupId);
+                    }
+                },
+                {
+                    title: 'Закрыть',
+                    id: 'closebtn',
+                    name: 'closebtn',
+                    className: BX.browser.IsIE() && BX.browser.IsDoctype() && !BX.browser.IsIE10() ? '' : 'adm-btn',
+                    action: () => {
+                        productsGroupPopup.getDialog().Close();
+                    }
+                }
+            ]
+        });
+        productsGroupPopup.dialogSearch().getDialog().Show();
+        BX.addCustomEvent(productsGroupPopup.getEvent(), (dataEvent) => {
+            BX.ajax({  
+                url: '/bitrix/tools/smith.b2b/delete_product_from_group.php',
+                data: dataEvent,
+                method: 'POST',
+                dataType: 'json',
+                timeout: 30,
+                async: false,
+                processData: true,
+                scriptsRunFirst: true,
+                emulateOnload: true,
+                start: true,
+                cache: false,
+                onsuccess: function (data) {
+                    if (data['STATUS'] === 'OK') {
+                        productsGroupPopup.refreshDialog();
+                    } else {
+                        alert(data['ERRORS']);
+                    }
+                }
+            });
+        });
+    }
 </script>
 <?
     $tabControl->Buttons(); 
