@@ -50,8 +50,6 @@ class User
         {
             if ($arData = self::getData($arFields))
             {
-                //$company = new Company($arData);
-                //$company->add();
                 $company = CompanyBase::add($arData);
             }
         }
@@ -68,7 +66,6 @@ class User
             {
                 $request = Application::getInstance()->getContext()->getRequest();
                 $userId = $arFields['ID'];
-                //$company = Company::getByID($userId);
                 $company = CompanyBase::getByID($userId);
                 $company->change($arData);
             }
@@ -108,7 +105,7 @@ class User
                     'STORES'         => self::getStoresData($request)
                 )
             ),
-            'AGREEMENT_GROUPS' => self::getStoresData($request),
+            'AGREEMENT_GROUPS' => self::getAgreementGroupsData($request),
             'AGREEMENT_INDIVIDUAL' => self::getAgreementGroupsIndividual($request)
         );
     }
@@ -146,7 +143,7 @@ class User
         foreach ($arCatalogGroups as $k => $v) {
             if (!$v) continue;
             $res[] = array(
-                //'ID'      => $arIDs[$k] ? $arIDs[$k] : false,
+                'GROUP_ID'         => $arIDs[$k] ? $arIDs[$k] : false,
                 'CATALOG_GROUP_ID' => $v,
                 'PRICE_GROUP_ID'   => $arPriceGroups[$k],
                 'DATE_BEGIN'       => $arDateBegin[$k],
@@ -159,7 +156,6 @@ class User
 
     protected static function getAgreementGroupsIndividual($request)
     {
-        
         return false;
     }
 
@@ -169,15 +165,6 @@ class User
         {
             $request = Application::getInstance()->getContext()->getRequest();
             $userId = $request->get('ID');
-
-            // $company = Company::getByID($userId);
-            
-            // if ($company) {
-            //     $arProfile = $company->getProfile();
-            //     $arCompany = $company->getCompanies()[0];
-
-            //     $user = \CUser::getByID($userId)->Fetch();
-            // }
 
             $company = CompanyBase::getByID($userId);
 
@@ -209,9 +196,9 @@ class User
                 "REFERENCE" => array("Группа товаров"),
                 "REFERENCE_ID" => array(0)
             );
-            $sections = \CIBlockSection::GetTreeList(array("IBLOCK_ID" => 3), array("ID", "NAME", "DEPTH_LEVEL"));
-            while ($section = $sections->GetNext()) {
-                $catalogGroups["REFERENCE"][] = str_repeat(" . ", $section["DEPTH_LEVEL"] - 1).$section["NAME"];
+            $sections = \Smith\B2B\ProductGroups::getGroups();
+            foreach ($sections as $section) {
+                $catalogGroups["REFERENCE"][] = $section["NAME"];
                 $catalogGroups["REFERENCE_ID"][] = $section["ID"];
             }
 
@@ -292,7 +279,7 @@ class User
                     'NAME' => '<input type="hidden" name="COMPANY_STORE_ID[]" value="'.$store['ID'].'">
                                <input type="text" name="COMPANY_STORE_NAME[]" value="'.$store['NAME'].'" size="20" placeholder="Название">',
                     'INPUT' => '<input type="text" name="COMPANY_STORE_ADDRESS[]" value="'.$store['ADDRESS'].'" size="50" placeholder="Адрес">
-                               <a href="javascript:;" class="adm-btn adm-btn-delete adm-btn-delete-item" delete-target="'.$store['ID'].'" onclick="onClickBtnDelete(this)">Удалить</a>'
+                               <a href="javascript:;" class="adm-btn adm-btn-delete adm-btn-delete-item" data-entity="store" onclick="onClickBtnDelete(this, '.$store['ID'].')">Удалить</a>'
                 ));
             }
             $rows .= self::getRow(array(
@@ -307,7 +294,18 @@ class User
             </tr>';
 
             $rows .= self::getDelimiter('Групповые торговые соглашения');
+            foreach ($groupAgreements as $agreement) {
+                $rows .= self::getMultipleRow(
+                    '<input type="hidden" name="GROUP_ID[]" value="'.$agreement['ID'].'">'.
+                    SelectBoxFromArray("CATALOG_GROUP[]", $catalogGroups, $agreement['CATALOG_GROUP'], "", "")."&nbsp;".
+                    SelectBoxFromArray("PRICE_GROUP[]", $priceGroups, $agreement['PRICE_GROUP'], "", "")."&nbsp;".
+                    CAdminCalendar::CalendarDate("DATE_BEGIN_GROUP[]", $agreement['BEGIN'])."&nbsp;".
+                    CAdminCalendar::CalendarDate("DATE_END_GROUP[]", $agreement['END'])."&nbsp;".
+                    '<a href="javascript:;" class="adm-btn adm-btn-delete adm-btn-delete-item" data-entity="agreement_group" onclick="onClickBtnDelete(this, '.$agreement['ID'].')">Удалить</a>'
+                );
+            }
             $rows .= self::getMultipleRow(
+                '<input type="hidden" name="GROUP_ID[]">'.
                 SelectBoxFromArray("CATALOG_GROUP[]", $catalogGroups, "", "", "")."&nbsp;".
                 SelectBoxFromArray("PRICE_GROUP[]", $priceGroups, "", "", "")."&nbsp;".
                 CAdminCalendar::CalendarDate("DATE_BEGIN_GROUP[]")."&nbsp;".
@@ -320,14 +318,14 @@ class User
                 </td>
             </tr>';
 
-            $rows .= self::getDelimiter('Индивидуальные торговые соглашения');
-            $rows .= self::getMultipleRow(
-                SelectBoxFromArray("PRODUCT_ID[]", $catalogGroup, "", "", "")."&nbsp;".
-                '<input type="text" name="PRICE[]" size="20" placeholder="Название">'."&nbsp;".
-                SelectBoxFromArray("CURRENCY[]", $currencies, "", "", "")."&nbsp;".
-                CAdminCalendar::CalendarDate("DATE_BEGIN_INDIVIDUAL[]")."&nbsp;".
-                CAdminCalendar::CalendarDate("DATE_END_INDIVIDUAL[]")
-            );
+            // $rows .= self::getDelimiter('Индивидуальные торговые соглашения');
+            // $rows .= self::getMultipleRow(
+            //     SelectBoxFromArray("PRODUCT_ID[]", $catalogGroup, "", "", "")."&nbsp;".
+            //     '<input type="text" name="PRICE[]" size="20" placeholder="Название">'."&nbsp;".
+            //     SelectBoxFromArray("CURRENCY[]", $currencies, "", "", "")."&nbsp;".
+            //     CAdminCalendar::CalendarDate("DATE_BEGIN_INDIVIDUAL[]")."&nbsp;".
+            //     CAdminCalendar::CalendarDate("DATE_END_INDIVIDUAL[]")
+            // );
 
             $form->tabs[] = array(
                 "DIV" => "company", 
@@ -347,7 +345,7 @@ class User
     protected static function getMultipleRow($content)
     {
         $row = self::rowBegin();
-        $row .= "<td align=\"center\" colspan=\"2\">$content</td>";
+        $row .= "<td style=\"padding-left: 25%;\" colspan=\"2\">$content</td>";
         $row .= self::rowEnd();
 
         return $row;

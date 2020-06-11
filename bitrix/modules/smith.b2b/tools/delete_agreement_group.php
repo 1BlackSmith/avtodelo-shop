@@ -1,9 +1,7 @@
 <?
-
-use \Smith\B2B\Company;
+use \Smith\B2B\CompanyBase;
 
 define("NO_KEEP_STATISTIC", true);
-define("NOT_CHECK_PERMISSIONS", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 \Bitrix\Main\Loader::includeModule('smith.b2b');
@@ -16,14 +14,11 @@ $arResult = array(
 );
 
 if ($request->isPost()) {
-
-    $result = Company::deleteStore($request['id']);
-
-    if ($result->isSuccess())
-    {
+    try {
+        CompanyBase::deleteAgreementGroup($request['id']);
         $arResult['STATUS'] = 'OK';
-    } else {
-        $arResult['ERRORS'] = $result->getErrorMessages();
+    } catch (Exception $e) {
+        $arResult['ERRORS'] = $e->getMessage();
     }
 
     echo CUtil::PhpToJSObject($arResult);
