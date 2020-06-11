@@ -324,6 +324,32 @@ class DataManager
         return $store;
     }
 
+    protected static function changeTradeAgreementGroup(TradeAgreementGroup $agreementGroup, $data, $save = true) 
+    {
+        foreach ($data as $k => $v) {
+            switch ($k) {
+                case 'CATALOG_GROUP':
+                    $agreementGroup->setCatalogGroup($v);
+                    break;
+                case 'PRICE_GROUP':
+                    $agreementGroup->setPriceGroup($v);
+                    break;
+                case 'BEGIN':
+                    $agreementGroup->setBegin($v);
+                    break;
+                case 'END':
+                    $agreementGroup->setEnd($v);
+                    break;
+            }
+        }
+
+        if ($save) {
+            return static::saveObj($agreementGroup);
+        }
+
+        return $agreementGroup;
+    }
+
     protected static function deleteProfile($profile)
     {
         if (is_numeric($profile)) {
@@ -407,13 +433,13 @@ class DataManager
         return static::deleteObj($employeeStores);
     }
 
-    protected static function deleteTradeAgreementGroup($company)
+    protected static function deleteTradeAgreementGroup($agreement)
     {
-        if (is_numeric($company)) {
-            $companyObj = static::getTradeAgreementGroupObj(['ID' => $company]);
-            return static::deleteObj($companyObj);
-        } elseif ($company instanceof TradeAgreementGroup) {
-            return static::deleteObj($company);
+        if (is_numeric($agreement)) {
+            $agreementObj = static::getTradeAgreementGroupObj(['ID' => $agreement]);
+            return static::deleteObj($agreementObj);
+        } elseif ($agreement instanceof TradeAgreementGroup) {
+            return static::deleteObj($agreement);
         } else {
             return false;
         }

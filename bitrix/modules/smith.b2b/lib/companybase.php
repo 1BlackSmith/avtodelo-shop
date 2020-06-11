@@ -57,8 +57,8 @@ class CompanyBase extends DataManager
             
             $stores = $company->fillStores();
             $employees = static::getEmployeesObj(['STORE_ID' => $stores->getIdList()]);
-            $groupAgreements = static::getTradeAgreementsGroupObj(['COMPANY' => $id]);
-            $individualAgreements = static::getTradeAgreementsIndividualObj(['COMPANY' => $id]);
+            $groupAgreements = static::getTradeAgreementsGroupObj(['COMPANY' => $company->getId()]);
+            $individualAgreements = static::getTradeAgreementsIndividualObj(['COMPANY' => $company->getId()]);
 
             return [$profile, $company, $stores, $employees, $groupAgreements, $individualAgreements];
         }
@@ -114,7 +114,7 @@ class CompanyBase extends DataManager
         static::changeProfile($this->profile, $data);
         static::changeCompany($this->company, $data['COMPANIES'][0]);
         static::changeStores($this->stores, $data['COMPANIES'][0]['STORES']);
-        //static::addTradeAgreementsGroup($profileId, $data['AGREEMENT_GROUPS']);
+        static::changeTradeAgreementsGroup($this->groupAgreements, $data['AGREEMENT_GROUPS']);
         //static::addTradeAgreementsIndividual($profileId, $data['AGREEMENT_INDIVIDUAL']);
     }
 
@@ -133,6 +133,21 @@ class CompanyBase extends DataManager
         return $stores->save();
     }
 
+    protected function changeTradeAgreementsGroup(TradeAgreementsGroup $agreementGroups, $data)
+    {
+        $companyId = $this->company->getId();
+        foreach ($data as $agreementData) {
+            if (!$agreementData['ID']) {
+                $agreementGroups[] = static::addTradeAgreementGroup($companyId, $agreementData, false);
+            } elseif ($agreementGroups->hasByPrimary($agreementData['ID'])) {
+                $group = $agreementGroups->getByPrimary($agreementData['ID']);
+                static::changeTradeAgreementGroup($group, $agreementData, false);
+            }
+        }
+
+        return $agreementGroups->save();
+    }
+
     public function delete()
     {
         static::deleteProfile($this->profile);
@@ -141,6 +156,10 @@ class CompanyBase extends DataManager
         static::deleteEmployees($this->employees);
         //static::addTradeAgreementsGroup($profileId);
         //static::addTradeAgreementsIndividual($profileId);
+    }
+
+    public function deleteAgreementGroup($id) {
+        static::deleteTradeAgreementGroup($id);
     }
 
     public function getProfile()
