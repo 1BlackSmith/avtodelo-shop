@@ -415,6 +415,7 @@ $totalData = array(
 	'PRICE_FORMATED' => $result['allSum_FORMATED'],
 	'PRICE_WITHOUT_DISCOUNT_FORMATED' => $result['PRICE_WITHOUT_DISCOUNT'],
 	'CURRENCY' => $result['CURRENCY'],
+	'USER_POINTS' => $result['USER_POINTS'],
 	'BASKET_BONUSES' => $result['BASKET_BONUSES'],
 	'DEBITED_BONUSES' => $result['DEBITED_BONUSES'],
 	'DISABLE_BONUSES' => $result['DISABLE_BONUSES']

@@ -849,25 +849,26 @@
 
 
 .btn-blue {
-  border: 1px solid transparent;
-  background-color: #5eade2;
-  color: #ffffff;
+  border: 1px solid transparent !important;
+  background-color: #5eade2 !important;
+  color: #ffffff !important;
+  cursor: pointer;
 }
 
 .btn-blue:hover {
-  color: #ffffff;
-  background-color: #2f8ac7;
+  color: #ffffff !important;
+  background-color: #2f8ac7 !important;
 }
 
 #calculate-bonuses:checked + .btn-blue {
-  border: 1px solid #aaaaaa;
-  background-color: #ffffff;
-  color: #222222;
+  border: 1px solid #aaaaaa !important;
+  background-color: #ffffff !important;
+  color: #222222 !important;
 }
 
 #calculate-bonuses:disabled + .btn-blue {
-  background-color: #aaa;
-  color: #222222;
+  background-color: #aaa !important;
+  color: #222222 !important;
 }
 
 .user-points {

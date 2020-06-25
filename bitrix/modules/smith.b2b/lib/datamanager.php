@@ -328,16 +328,16 @@ class DataManager
     {
         foreach ($data as $k => $v) {
             switch ($k) {
-                case 'CATALOG_GROUP':
+                case 'CATALOG_GROUP_ID':
                     $agreementGroup->setCatalogGroup($v);
                     break;
-                case 'PRICE_GROUP':
+                case 'PRICE_GROUP_ID':
                     $agreementGroup->setPriceGroup($v);
                     break;
-                case 'BEGIN':
+                case 'DATE_BEGIN':
                     $agreementGroup->setBegin($v);
                     break;
-                case 'END':
+                case 'DATE_END':
                     $agreementGroup->setEnd($v);
                     break;
             }

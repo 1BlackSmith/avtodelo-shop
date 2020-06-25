@@ -20,6 +20,8 @@ use Bitrix\Main,
 	Smith\Bonusengine\BasketTable;
 
 use Smith\B2B\Manager;
+use Smith\B2B\CompanyBase;
+use Smith\B2B\ProductGroups;
 
 class CBitrixBasketComponent extends CBitrixComponent
 {
@@ -39,6 +41,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 	protected $basketItems = array();
 	protected $basketBonuses = 0;
 	protected $manager;
+	protected $company;
 	protected $storage = array();
 	/** @var ErrorCollection $errorCollection */
 	protected $errorCollection;
@@ -546,6 +549,15 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 	protected function doAction($action)
 	{
+		global $APPLICATION;
+		global $USER;
+
+		$clientId = $APPLICATION->get_cookie("B2B_CLIENT_ID", COption::GetOptionString("main", "cookie_name", "BITRIX_SM"));
+		if (Manager::getByID($USER->GetID()) && $clientId && $clientId !== 'self')
+		{
+			$this->clientId = $clientId;
+		}
+
 		$funcName = $action.'Action';
 
 		if (is_callable(array($this, $funcName)))
@@ -562,12 +574,6 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 		global $APPLICATION;
 		global $USER;
-
-		$clientId = $APPLICATION->get_cookie("B2B_CLIENT_ID", COption::GetOptionString("main", "cookie_name", "BITRIX_SM"));
-		if (Manager::getByID($USER->GetID()) && $clientId && $clientId !== 'self')
-		{
-			$this->clientId = $clientId;
-		}
 
 		$this->arResult = array_merge($this->arResult, $this->getBasketItems());
 		$this->arResult['WARNING_MESSAGE'] += $this->getWarningsFromSession();
@@ -797,6 +803,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 		$basketOrder = (string)$this->request->get('BasketOrder');
 
 		$postList = $this->request->toArray();
+
 		$result = $this->recalculateBasket($postList);
 		$this->saveBasket();
 
@@ -957,6 +964,31 @@ class CBitrixBasketComponent extends CBitrixComponent
 		}
 
 		return $userId;
+	}
+
+	protected function obtainCompany()
+	{
+		$userId = $this->clientId ? $this->clientId : $this->getUserId();
+		$this->company = CompanyBase::getByID($userId);
+	}
+
+	protected function obtainGroupAgreements() 
+	{
+		if ($this->company instanceof CompanyBase) {
+			$this->companyGroupAgreements = array();
+			$groupAgreements = $this->company->getGroupAgreements();
+			foreach($groupAgreements as &$agreement) {
+				$agreement['PRODUCTS'] = ProductGroups::getProductsId($agreement['CATALOG_GROUP']);
+				foreach ($agreement['PRODUCTS'] as $productId) {
+					$this->companyGroupAgreements[$productId] = array(
+						'PRODUCT' => $productId,
+						'PRICE_GROUP' => $agreement['PRICE_GROUP'],
+						'BEGIN' => $agreement['BEGIN'],
+						'END' => $agreement['END']
+					);
+				}
+			}
+		}
 	}
 
 	// @gift
@@ -1369,16 +1401,6 @@ class CBitrixBasketComponent extends CBitrixComponent
 		if (!$this->isFastLoadRequest())
 		{
 			$this->refreshAndCorrectRatio();
-
-			$userId = $this->getUserId();
-			if ($userId !== null) {
-				$this->refreshPrices();
-
-				$points = BasketTable::getBonuses(array('USER_ID' => $userId));
-				if ($points) {
-					$this->processRecalculateBonuses($points);
-				}
-			}
 
 			$this->saveBasket();
 		}
@@ -2726,66 +2748,6 @@ class CBitrixBasketComponent extends CBitrixComponent
 		return $result;
 	}
 
-	protected function getProductPrice($basketItem)
-	{
-		if ($this->isGift($basketItem))
-			return 0;
-
-		/** @var Integer $userId ID пользователя */
-		$userId = $this->getUserId();
-
-		$perssoTypeId = 3;
-
-		if ($userId) 
-		{
-			$priceId = $this->getPersonPriceType($userId);
-
-	    	$rsPrices = CPrice::GetList(
-		        array(),
-		        array(
-		          'PRODUCT_ID' => $basketItem->getProductId(),
-		          'CATALOG_GROUP_ID' => $priceId,
-		        )
-	       	);
-
-	    	CModule::IncludeModule("currency");
-	       	
-	       	if ($arPrice = $rsPrices->Fetch())
-			{
-				return CCurrencyRates::ConvertCurrency($arPrice['PRICE'], $arPrice['CURRENCY'], "RUB");
-			}
-			
-			return $basketItem->getField('BASE_PRICE');
-		}
-
-		return false;
-	}
-
-	/**
-	 * Возвращает ID типа минимальной цены
-	 *
-	 * @param  Integer $userId
-	 * @return Integer ID типа цены
-	 */
-	protected function getPersonPriceType($userId)
-	{
-		\Bitrix\Main\Loader::includeModule("catalog");
-
-		$personPriceGroups = \Bitrix\Catalog\GroupAccessTable::getList([
-			"select" => ["CATALOG_GROUP_ID"],
-			"filter" => [
-		    	"=GROUP_ID" => CUser::GetUserGroup($userId),
-		    	"=ACCESS" => 'Y'
-			]
-		])->fetchAll();
-		$personPriceGroups = array_map(function($item) {
-			return $item['CATALOG_GROUP_ID'];
-		}, $personPriceGroups);
-
-		// Самый последний тип цены минимальный
-		return array_pop($personPriceGroups);
-	}
-
 	protected function getPrepayment()
 	{
 		global $APPLICATION;
@@ -3485,24 +3447,20 @@ class CBitrixBasketComponent extends CBitrixComponent
 	// legacy method @recalculate
 	public function recalculateBasket($postList)
 	{
+		global $APPLICATION;
+		global $USER;
 		$result = $this->getDefaultAjaxAnswer();
 
 		if (!empty($postList))
 		{
-			if ($postList['client_select']) 
-			{
-				global $USER;
-				global $APPLICATION;
-
-				$this->clientId = 0;
-
-				if (($clientId = $postList['client_select']) !== 'self' && Manager::getByID($USER->GetID())) 
-				{
-					$this->clientId = $clientId;
-				}
-
-				$APPLICATION->set_cookie("B2B_CLIENT_ID", $this->clientId);
-			}
+			if ($postList['client_select']) {
+                $this->clientId = 0;
+                if (($clientId = $postList['client_select']) !== 'self' && Manager::getByID($USER->GetID())) 
+                {
+                    $this->clientId = $clientId;
+                }
+                $APPLICATION->set_cookie("B2B_CLIENT_ID", $this->clientId);
+            }
 
 			if ($this->hideCoupon !== 'Y')
 			{
@@ -3568,36 +3526,18 @@ class CBitrixBasketComponent extends CBitrixComponent
 					}
 				}
 
-				if ($this->getUserId() !== null) {
-					$this->refreshPrices();
-				}
-
 				$result['CHANGED_BASKET_ITEMS'] = array_keys($itemsActionData);
 			}
 
-			if ($this->getUserId() !== null) {
-				if ($postList['bonuses_recalculation'] == 'Y')
-				{
-					$points = $this->getBasketBonuses();
-
-					BasketTable::changeBonuses(array('USER_ID' => $this->getUserId()), array('USER_ID' => $this->getUserId(), 'POINTS' => $points));
-
-			    	$result['CHANGED_BASKET_ITEMS'] = $this->processRecalculateBonuses($points);
-				} else {
-					$this->refreshPrices();
-
-					$basket = $this->getBasketStorage()->getBasket();
-					$resIds = array();
-
-					foreach ($basket as $basketItem) {
-						$resIds[] = $basketItem->getId();
-					}
-
-					BasketTable::changeBonuses(array('USER_ID' => $this->getUserId()), array('POINTS' => 0));
-
-					$result['CHANGED_BASKET_ITEMS'] = $resIds;
-				}
-			}
+			$userId = $this->getUserId();
+            if ($userId) {
+                if ($postList['bonuses_recalculation'] == 'Y') {
+                    $points = $this->getBasketBonuses();
+                    BasketTable::changeBonuses(array('USER_ID' => $userId), array('USER_ID' => $userId, 'POINTS' => $points));
+                } else {
+                    BasketTable::changeBonuses(array('USER_ID' => $userId), array('POINTS' => 0));
+                }
+            }
 		}
 
 		return $result;
@@ -3781,23 +3721,6 @@ class CBitrixBasketComponent extends CBitrixComponent
 		}
 	}
 
-	protected function refreshPrices()
-	{
-		$basket = &$this->getBasketStorage()->getBasket();
-
-		foreach ($basket as $basketItem) {
-			$basePrice = $basketItem->getBasePrice();
-			$price = $this->getProductPrice($basketItem);
-			$quantity = $basketItem->getQuantity();
-
-			$basketItem->setFields(array(
-				'CUSTOM_PRICE' => 'Y',
-				'DISCOUNT_PRICE' => $basePrice - $price,
-				'PRICE' => $price
-			));
-		}
-	}
-
 	protected function isGift($basketItem)
 	{
 		return in_array($basketItem->getProductId(), $this->arGiftIds) && $basketItem->getQuantity() < 2;
@@ -3841,33 +3764,6 @@ class CBitrixBasketComponent extends CBitrixComponent
 		}
 
 		$this->saveBasket();
-	}
-
-	// @process
-	protected function processRecalculateBonuses($bonuses)
-	{
-		$basket = &$this->getBasketStorage()->getBasket();
-
-		$salePercent = $bonuses / $basket->getPrice();
-
-		$resIds = array();
-
-		foreach ($basket as $basketItem) {
-			if ($this->isGift($basketItem))
-				continue;
-
-			$resIds[] = $basketItem->getId();
-			$price = $this->getProductPrice($basketItem);
-			$quantity = $basketItem->getQuantity();
-
-			$basketItem->setFields(array(
-				'CUSTOM_PRICE' => 'Y',
-				'DISCOUNT_PRICE' => $basketItem->getBasePrice() - $price * (1 - $salePercent),
-				'PRICE' => $price * (1 - $salePercent)
-			));
-		}
-
-		return $resIds;
 	}
 
 	protected function processChangeQuantity(&$result, $itemRatioData, $quantity)

@@ -224,7 +224,7 @@ $tabControl = new CAdminTabControl('tabControl', $aTabs);
             timeout: 30,
             async: false,
             processData: true,
-            scriptsRunFirst: true,
+            //scriptsRunFirst: true,
             emulateOnload: true,
             start: true,
             cache: false,

@@ -244,9 +244,6 @@ $layout->start();
 								<?php endif ?>
 							</div>
 							<div class="basket-items-list-header-filter">
-								<? if ($arResult['USER_POINTS']): ?>
-									<div class="user-points"><?= Loc::getMessage('SBB_USER_POINTS') ?>: <?= $arResult['USER_POINTS'] ?></div>
-								<? endif; ?>
 								<a href="javascript:void(0)" class="btn btn-quantity basket-items-list-header-filter-item btn-secondary"
 									data-entity="basket-items-count" data-filter="all" style="display: none;"></a>
 								<a href="javascript:void(0)" class="btn btn-quantity basket-items-list-header-filter-item btn-outline-secondary"
@@ -275,7 +272,7 @@ $layout->start();
 											<th class="basket-items-list-th basket-items-list-header-name"><?=Loc::getMessage('SBB_TABLE_TH_NAME')?></th>
 											<th class="basket-items-list-th text-center"><?=Loc::getMessage('SBB_TABLE_TH_AMOUNT')?></th>
 											<th class="basket-items-list-th"><?=Loc::getMessage('SBB_TABLE_TH_PRICE')?></th>
-											<th class="basket-items-list-th"><?=Loc::getMessage('SBB_TABLE_TH_DISCOUNT')?></th>
+											<!-- <th class="basket-items-list-th"><?=Loc::getMessage('SBB_TABLE_TH_DISCOUNT')?></th> -->
 											<th class="basket-items-list-th"><?=Loc::getMessage('SBB_TABLE_TH_SUM')?></th>
 											<th></th>
 										</tr>
