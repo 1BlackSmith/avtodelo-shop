@@ -50,6 +50,13 @@ use Bitrix\Main\Localization\Loc;
 						<div class="basket-checkout-total-block-value">{{{WEIGHT_FORMATED}}}</div>
 					</div>
 					{{/WEIGHT_FORMATED}}
+					
+					{{^DISABLE_BONUSES}}
+					<div class="basket-checkout-total-block">
+						<div class="basket-checkout-total-block-title"><?=Loc::getMessage('SBB_USER_POINTS')?>: </div>
+						<div class="basket-checkout-total-block-value">{{{USER_POINTS}}}</div>
+					</div>
+					{{/DISABLE_BONUSES}}
 
 					{{#DEBITED_BONUSES}}
 					<div class="basket-checkout-total-block">

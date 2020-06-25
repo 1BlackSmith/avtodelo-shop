@@ -413,7 +413,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 					</div>
 				</td>
 
-				<td class="basket-items-list-item-price d-none d-sm-table-cell">
+				<!-- <td class="basket-items-list-item-price d-none d-sm-table-cell">
 					{{#SHOW_DISCOUNT_PRICE}}
 						<div class="basket-item-block-price basket-item-block-price-aligner">
 							<div class="basket-item-price-old">
@@ -427,7 +427,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 					{{#SHOW_LOADING}}
 						<div class="basket-items-list-item-overlay"></div>
 					{{/SHOW_LOADING}}
-				</td>
+				</td> -->
 				<?
 			}
 			?>

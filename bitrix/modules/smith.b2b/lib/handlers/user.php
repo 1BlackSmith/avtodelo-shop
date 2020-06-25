@@ -143,7 +143,7 @@ class User
         foreach ($arCatalogGroups as $k => $v) {
             if (!$v) continue;
             $res[] = array(
-                'GROUP_ID'         => $arIDs[$k] ? $arIDs[$k] : false,
+                'ID'         => $arIDs[$k] ? $arIDs[$k] : false,
                 'CATALOG_GROUP_ID' => $v,
                 'PRICE_GROUP_ID'   => $arPriceGroups[$k],
                 'DATE_BEGIN'       => $arDateBegin[$k],
@@ -176,6 +176,7 @@ class User
                 $user = \CUser::getByID($userId)->Fetch();
             }
 
+            \CJSCore::Init(array("jquery","date"));
             \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/smith.b2b/admin/user_edit.js');
 
             $arManagers = array(
@@ -296,20 +297,20 @@ class User
             $rows .= self::getDelimiter('Групповые торговые соглашения');
             foreach ($groupAgreements as $agreement) {
                 $rows .= self::getMultipleRow(
-                    '<input type="hidden" name="GROUP_ID[]" value="'.$agreement['ID'].'">'.
+                    '<input type="hidden" name="AGREEMENT_GROUP_ID[]" value="'.$agreement['ID'].'">'.
                     SelectBoxFromArray("CATALOG_GROUP[]", $catalogGroups, $agreement['CATALOG_GROUP'], "", "")."&nbsp;".
                     SelectBoxFromArray("PRICE_GROUP[]", $priceGroups, $agreement['PRICE_GROUP'], "", "")."&nbsp;".
-                    CAdminCalendar::CalendarDate("DATE_BEGIN_GROUP[]", $agreement['BEGIN'])."&nbsp;".
-                    CAdminCalendar::CalendarDate("DATE_END_GROUP[]", $agreement['END'])."&nbsp;".
+                    '<input type="text" value="'.$agreement['BEGIN'].'" name="DATE_BEGIN_GROUP[]" onclick="BX.calendar({node: this, field: this, bTime: false});">'."&nbsp;".
+                    '<input type="text" value="'.$agreement['END'].'" name="DATE_END_GROUP[]" onclick="BX.calendar({node: this, field: this, bTime: false});">'."&nbsp;".
                     '<a href="javascript:;" class="adm-btn adm-btn-delete adm-btn-delete-item" data-entity="agreement_group" onclick="onClickBtnDelete(this, '.$agreement['ID'].')">Удалить</a>'
                 );
             }
             $rows .= self::getMultipleRow(
-                '<input type="hidden" name="GROUP_ID[]">'.
+                '<input type="hidden" name="AGREEMENT_GROUP_ID[]">'.
                 SelectBoxFromArray("CATALOG_GROUP[]", $catalogGroups, "", "", "")."&nbsp;".
                 SelectBoxFromArray("PRICE_GROUP[]", $priceGroups, "", "", "")."&nbsp;".
-                CAdminCalendar::CalendarDate("DATE_BEGIN_GROUP[]")."&nbsp;".
-                CAdminCalendar::CalendarDate("DATE_END_GROUP[]")
+                '<input type="text" value="" name="DATE_BEGIN_GROUP[]" onclick="BX.calendar({node: this, field: this, bTime: false});">'."&nbsp;".
+                '<input type="text" value="" name="DATE_END_GROUP[]" onclick="BX.calendar({node: this, field: this, bTime: false});">'
             );
             $rows .= '<tr>
                 <td width="40" class="adm-detail-content-cell-l"></td>
