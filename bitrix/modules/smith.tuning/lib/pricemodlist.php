@@ -27,9 +27,9 @@ class PriceModList
             $item['BASE_PRICE_CODE'] = $arResult['BASE_PRICE_CODE'];
         }
 
-        if (!is_set($arResult['PRICES'])) {
-            $arResult['PRICES'] = static::getPricesItems($itemsId);
-        }
+        $arResult['PRICES'] = static::getPricesItems($itemsId);
+
+        \Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($arResult['PRICES'], true));
 
         $company = static::getCompany();
         if ($company) {
@@ -137,6 +137,7 @@ class PriceModList
             $res[$productId][$group['NAME']] = array(
                 'PRICE_ID' => $group['ID'],
                 'VALUE' => $productPrice['PRICE'],
+                'PRINT_VALUE' => CurrencyFormat(CCurrencyRates::ConvertCurrency($productPrice['PRICE'], $productPrice['CURRENCY'], "RUB"), "RUB"),
             );
         }
 
