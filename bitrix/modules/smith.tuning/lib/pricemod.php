@@ -157,7 +157,7 @@ class PriceMod
             }
             unset($agreement);
 
-            if (is_numeric($minPriceGroup)) {
+            if ($minPriceGroup) {
                 return $this->getPriceByGroup($minPriceGroup);
             }
         }
