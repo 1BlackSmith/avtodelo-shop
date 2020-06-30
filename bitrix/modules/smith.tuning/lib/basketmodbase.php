@@ -254,18 +254,20 @@ class BasketModBase
                 unset($productAgreements, $productId, $prices);
 
                 $productPrices = array();
-                $productsId = array_keys($productGroupPrices);
-                $priceGroups = array_values($productGroupPrices);
-                $rsProductsPrice = PriceTable::getList(array(
-                    'filter' => array('@PRODUCT_ID' => $productsId, '@CATALOG_GROUP_ID' => $priceGroups)
-                ))->fetchAll();
-                foreach ($rsProductsPrice as $row) {
-                    if ($productGroupPrices[$row['PRODUCT_ID']] == $row['CATALOG_GROUP_ID']) {
-                        $productPrices[$row['PRODUCT_ID']] = CCurrencyRates::ConvertCurrency($row['PRICE'], $row['CURRENCY'], 'RUB');
+                if (count($productGroupPrices) > 0) {
+                    $productsId = array_keys($productGroupPrices);
+                    $priceGroups = array_values($productGroupPrices);
+                    $rsProductsPrice = PriceTable::getList(array(
+                        'filter' => array('@PRODUCT_ID' => $productsId, '@CATALOG_GROUP_ID' => $priceGroups)
+                    ))->fetchAll();
+                    foreach ($rsProductsPrice as $row) {
+                        if ($productGroupPrices[$row['PRODUCT_ID']] == $row['CATALOG_GROUP_ID']) {
+                            $productPrices[$row['PRODUCT_ID']] = CCurrencyRates::ConvertCurrency($row['PRICE'], $row['CURRENCY'], 'RUB');
+                        }
                     }
+                    unset($productGroupPrices, $productsId, $priceGroups, $rsProductsPrice, $price);
                 }
-                unset($productGroupPrices, $productsId, $priceGroups, $rsProductsPrice, $price);
-                
+
                 $this->companyAgreements = $productPrices;
             }
         }
