@@ -156,7 +156,28 @@ class User
 
     protected static function getAgreementGroupsIndividual($request)
     {
-        return false;
+        $res = array();
+
+        $arIDs = $request->getPost('AGREEMENT_IND_ID');
+        $arProductIDs = $request->getPost('AGREEMENT_IND_PRODUCT_ID');
+        $arPrices = $request->getPost('AGREEMENT_IND_PRICE');
+        $arCurrencies = $request->getPost('AGREEMENT_IND_CURRENCY');
+        $arDateBegin = $request->getPost('AGREEMENT_IND_BEGIN');
+        $arDateEnd = $request->getPost('AGREEMENT_IND_END');
+
+        foreach ($arProductIDs as $k => $v) {
+            if (!$v || !$arPrices[$k]) continue;
+            $res[] = array(
+                'ID'       => $arIDs[$k] ? $arIDs[$k] : false,
+                'PRODUCT'  => $v,
+                'PRICE'    => $arPrices[$k],
+                'CURRENCY' => $arCurrencies[$k],
+                'BEGIN'    => $arDateBegin[$k],
+                'END'      => $arDateEnd[$k],
+            ); 
+        }
+
+        return $res;
     }
 
     public function OnAdminTabControlBegin(&$form)
@@ -172,12 +193,16 @@ class User
                 $arProfile = $company->getProfile();
                 $arCompany = $company->getCompany();
                 $groupAgreements = $company->getGroupAgreements();
+                $individualAgreements = $company->getIndividualAgreements();
+                $arIndividualProducts = self::collectIndAgreementsProducts($individualAgreements);
 
                 $user = \CUser::getByID($userId)->Fetch();
             }
 
             \CJSCore::Init(array("jquery","date"));
+            \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/smith.b2b/admin/element_search.js');
             \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/smith.b2b/admin/user_edit.js');
+
 
             $arManagers = array(
                 "REFERENCE" =>
@@ -319,14 +344,31 @@ class User
                 </td>
             </tr>';
 
-            // $rows .= self::getDelimiter('Индивидуальные торговые соглашения');
-            // $rows .= self::getMultipleRow(
-            //     SelectBoxFromArray("PRODUCT_ID[]", $catalogGroup, "", "", "")."&nbsp;".
-            //     '<input type="text" name="PRICE[]" size="20" placeholder="Название">'."&nbsp;".
-            //     SelectBoxFromArray("CURRENCY[]", $currencies, "", "", "")."&nbsp;".
-            //     CAdminCalendar::CalendarDate("DATE_BEGIN_INDIVIDUAL[]")."&nbsp;".
-            //     CAdminCalendar::CalendarDate("DATE_END_INDIVIDUAL[]")
-            // );
+            $rows .= self::getDelimiter('Индивидуальные торговые соглашения');
+            foreach ($individualAgreements as $agreement) {
+                $productId = $agreement['PRODUCT'];
+                $productName = $arIndividualProducts[$productId]['NAME'];
+                $productArtnumber = $arIndividualProducts[$productId]['ARTNUMBER'];
+                $rows .= self::getMultipleRow(
+                    '<input type="hidden" name="AGREEMENT_IND_ID[]" value="'.$agreement['ID'].'">'.
+                    '<input type="hidden" class="ind-product-id" name="AGREEMENT_IND_PRODUCT_ID[]" value="'.$productId.'">'.
+                    '<span style="display: inline-block; width: 300px; vertical-align: middle; text-align: right; margin-right: 5px;">'.$productName."<br>Артикул: ".$productArtnumber.'</span>'."&nbsp;".
+                    '<input type="text" name="AGREEMENT_IND_PRICE[]" size="6" placeholder="Цена" value="'.$agreement['PRICE'].'">'."&nbsp;".
+                    SelectBoxFromArray("AGREEMENT_IND_CURRENCY[]", $currencies, $agreement['CURRENCY'], "", "")."&nbsp;".
+                    '<input type="text" value="" name="AGREEMENT_IND_BEGIN[]" onclick="BX.calendar({node: this, field: this, bTime: false});" value="'.$agreement['BEGIN'].'" size="8">'."&nbsp;".
+                    '<input type="text" value="" name="AGREEMENT_IND_END[]" onclick="BX.calendar({node: this, field: this, bTime: false});" value="'.$agreement['END'].'" size="8">'."&nbsp;".
+                    '<a href="javascript:;" class="adm-btn adm-btn-delete adm-btn-delete-item" data-entity="agreement_ind" onclick="onClickBtnDelete(this, '.$agreement['ID'].')">Удалить</a>'
+                );
+            }
+            $rows .= self::getMultipleRow(
+                '<input type="hidden" name="AGREEMENT_IND_ID[]">'.
+                '<input type="hidden" class="ind-product-id" name="AGREEMENT_IND_PRODUCT_ID[]">'.
+                '<a style="margin-left: 170px; margin-right: 5px;" href="javascript:void(0)" onclick="openCatalogPopup(this)" class="adm-btn adm-btn-save">Выбрать товар</a>'."&nbsp;".
+                '<input type="text" name="AGREEMENT_IND_PRICE[]" size="6" placeholder="Цена">'."&nbsp;".
+                SelectBoxFromArray("AGREEMENT_IND_CURRENCY[]", $currencies, "", "", "")."&nbsp;".
+                '<input type="text" value="" name="AGREEMENT_IND_BEGIN[]" onclick="BX.calendar({node: this, field: this, bTime: false});" size="8">'."&nbsp;".
+                '<input type="text" value="" name="AGREEMENT_IND_END[]" onclick="BX.calendar({node: this, field: this, bTime: false});" size="8">'."&nbsp;"
+            );
 
             $form->tabs[] = array(
                 "DIV" => "company", 
@@ -338,6 +380,29 @@ class User
         }
     }
 
+    protected static function collectIndAgreementsProducts($agreements)
+    {
+        $productsId = array();
+        $arProducts = array();
+        
+        foreach ($agreements as $agreement) {
+            $productsId[] = $agreement['PRODUCT'];
+        }
+
+        $arSelect = Array('ID', 'IBLOCK_ID', 'NAME', 'PROPERTY_ARTNUMBER');
+        $arFilter = Array('IBLOCK_ID' => 3, 'ACTIVE' => 'Y', 'ID' => $productsId);
+        $res = \CIBlockElement::GetList(Array(), $arFilter, false, Array(), $arSelect);
+        while ($ob = $res->GetNextElement()) {
+            $arFields = $ob->GetFields();
+            $arProducts[$arFields['ID']] = Array(
+                'NAME' => $arFields['NAME'],
+                'ARTNUMBER' => $arFields['PROPERTY_ARTNUMBER_VALUE'],
+            );
+        }
+
+        return $arProducts;
+    }
+
     protected static function getDelimiter($name = '')
     {
         return "<tr class=\"heading\"><td colspan=\"2\">$name</td></tr>";
@@ -346,7 +411,7 @@ class User
     protected static function getMultipleRow($content)
     {
         $row = self::rowBegin();
-        $row .= "<td style=\"padding-left: 25%;\" colspan=\"2\">$content</td>";
+        $row .= "<td style=\"padding-left: 25%; padding-bottom: 5px;\" colspan=\"2\">$content</td>";
         $row .= self::rowEnd();
 
         return $row;

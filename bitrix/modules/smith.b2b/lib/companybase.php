@@ -115,7 +115,7 @@ class CompanyBase extends DataManager
         static::changeCompany($this->company, $data['COMPANIES'][0]);
         static::changeStores($this->stores, $data['COMPANIES'][0]['STORES']);
         static::changeTradeAgreementsGroup($this->groupAgreements, $data['AGREEMENT_GROUPS']);
-        //static::addTradeAgreementsIndividual($profileId, $data['AGREEMENT_INDIVIDUAL']);
+        static::changeTradeAgreementsIndividual($this->individualAgreements, $data['AGREEMENT_INDIVIDUAL']);
     }
 
     protected function changeStores(CompanyStores $stores, $data)
@@ -148,6 +148,21 @@ class CompanyBase extends DataManager
         return $agreementGroups->save();
     }
 
+    protected function changeTradeAgreementsIndividual(TradeAgreementsIndividual $agreements, $data)
+    {
+        $companyId = $this->company->getId();
+        foreach ($data as $agreementData) {
+            if (!$agreementData['ID']) {
+                $agreements[] = static::addTradeAgreementIndividual($companyId, $agreementData, false);
+            } elseif ($agreements->hasByPrimary($agreementData['ID'])) {
+                $group = $agreements->getByPrimary($agreementData['ID']);
+                static::changeTradeAgreementIndividual($group, $agreementData, false);
+            }
+        }
+
+        return $agreements->save();
+    }
+
     public function delete()
     {
         static::deleteProfile($this->profile);
@@ -160,6 +175,10 @@ class CompanyBase extends DataManager
 
     public function deleteAgreementGroup($id) {
         static::deleteTradeAgreementGroup($id);
+    }
+
+    public function deleteAgreementIndividual($id) {
+        static::deleteTradeAgreementIndividual($id);
     }
 
     public function getProfile()
@@ -201,6 +220,11 @@ class CompanyBase extends DataManager
     public function getGroupAgreements()
     {
         return $this->groupAgreements->collectValues(Values::ACTUAL);
+    }
+
+    public function getIndividualAgreements()
+    {
+        return $this->individualAgreements->collectValues(Values::ACTUAL);
     }
 
     public function hasStore($id)

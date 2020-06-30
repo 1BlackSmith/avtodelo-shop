@@ -222,13 +222,13 @@ class DataManager
 
     protected static function addTradeAgreementIndividual($companyId, $data, $save = true)
     {
-        $agreement = (new TradeAgreementGroup)
+        $agreement = (new TradeAgreementIndividual)
             ->setCompany($companyId)
-            ->setProduct($data['PRODUCT_ID'])
+            ->setProduct($data['PRODUCT'])
             ->setPrice($data['PRICE'])
             ->setCurrency($data['CURRENCY'])
-            ->setBegin($data['DATE_BEGIN'])
-            ->setEnd($data['DATE_END']);
+            ->setBegin($data['BEGIN'])
+            ->setEnd($data['END']);
 
         if ($save) {
             return static::saveObj($agreement);
@@ -348,6 +348,35 @@ class DataManager
         }
 
         return $agreementGroup;
+    }
+
+    protected static function changeTradeAgreementIndividual(TradeAgreementIndividual $agreement, $data, $save = true) 
+    {
+        foreach ($data as $k => $v) {
+            switch ($k) {
+                case 'PRODUCT':
+                    $agreement->setProduct($v);
+                    break;
+                case 'PRICE':
+                    $agreement->setPrice($v);
+                    break;
+                case 'CURRENCY':
+                    $agreement->setCurrency($v);
+                    break;
+                case 'BEGIN':
+                    $agreement->setBegin($v);
+                    break;
+                case 'END':
+                    $agreement->setEnd($v);
+                    break;
+            }
+        }
+
+        if ($save) {
+            return static::saveObj($agreement);
+        }
+
+        return $agreement;
     }
 
     protected static function deleteProfile($profile)
