@@ -5,13 +5,11 @@ use \Bitrix\Main\Loader;
 use \CCurrencyRates;
 
 use \Bitrix\Catalog\PriceTable;
-use \Bitrix\Catalog\GroupTable;
-use \Bitrix\Catalog\GroupAccessTable;
 
 use \Smith\B2B\CompanyBase;
 use \Smith\B2B\ProductGroups;
 
-class PriceModList
+class PriceModList extends PriceModBase
 {   
     public static function modificateAllItems(&$arResult)
     {
@@ -28,8 +26,6 @@ class PriceModList
         }
 
         $arResult['PRICES'] = static::getPricesItems($itemsId);
-
-        \Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($arResult['PRICES'], true));
 
         $company = static::getCompany();
         if ($company) {
@@ -70,54 +66,6 @@ class PriceModList
         Loader::IncludeModule('currency');
     }
 
-    protected static function setPriceItem(&$item, $arBasePrice)
-    {
-        if (count($item['PRICES']) > 1) {
-            $selectedPrice = $item['ITEM_PRICE_SELECTED'];
-            $arCurPrice =& $item['ITEM_PRICES'][$selectedPrice];
-            foreach ($arCurPrice as $CODE => &$v) {
-                switch ($CODE) {
-                    case 'BASE_PRICE':
-                        $v = $arBasePrice['VALUE'];
-                        break;
-                    case 'DISCOUNT':
-                        $v = $arCurPrice['BASE_PRICE'] - $arCurPrice['PRICE'];
-                        break;
-                    case 'PERCENT':
-                        $v = 100 - round($arCurPrice['PRICE'] / $arCurPrice['BASE_PRICE'] * 100);
-                        break;
-                    case 'PRINT_PRICE':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'RATIO_PRICE':
-                        $v = $arCurPrice['PRICE'];
-                        break;
-                    case 'PRINT_RATIO_PRICE':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['RATIO_PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'PRINT_BASE_PRICE':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['BASE_PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'RATIO_BASE_PRICE':
-                        $v = $arCurPrice['BASE_PRICE'];
-                        break;
-                    case 'PRINT_RATIO_BASE_PRICE':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['RATIO_BASE_PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'PRINT_DISCOUNT':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['DISCOUNT'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'RATIO_DISCOUNT':
-                        $v = $arCurPrice['DISCOUNT'];
-                        break;
-                    case 'PRINT_RATIO_DISCOUNT':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['RATIO_DISCOUNT'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                }
-            }
-        }
-    }
-
     protected static function getPricesItems($itemsId)
     {
         $arAccessGroups = static::getAccessPricesId();
@@ -144,58 +92,18 @@ class PriceModList
         return $res;
     }
 
-    protected static function getAccessPricesId()
-    {
-        global $USER;
-        $arUserGroups = $USER->GetUserGroupArray();
-
-        $arAccessGroups = array();
-        $rsAccessGroups = GroupAccessTable::getList(array(
-            'filter' => array('@GROUP_ID' => $arUserGroups)
-        ))->fetchAll();
-        foreach ($rsAccessGroups as $accessGroup) {
-            if (in_array($accessGroup['CATALOG_GROUP_ID'], $arAccessGroups)) {
-                continue;
-            }
-            $arAccessGroups[] = $accessGroup['CATALOG_GROUP_ID'];
-        }
-        
-        return $arAccessGroups;
-    }
-
-    protected static function getPriceGroups($arAccessGroups)
-    {
-        $arGroups = array();
-        $rsGroups = GroupTable::getList(array(
-            'filter' => array('@ID' => $arAccessGroups),
-            'order' => array('ID' => 'ASC'),
-        ))->fetchAll();
-        foreach ($rsGroups as $group) {
-            $arGroups[$group['ID']] = $group;
-        }
-        
-        return $arGroups;
-    }
-
-    protected static function getBasePriceCode()
-    {
-        return GroupTable::getRow(array(
-            'select' => array('NAME'),
-            'filter' => array('BASE' => 'Y')
-        ))['NAME'];
-    }
-
     protected static function getAgreementsPrice($company) 
     {
         if ($company instanceof CompanyBase) {
-            $productAgreements = array();
+            $products = array();
             $groupAgreements = $company->getGroupAgreements();
             if (count($groupAgreements) > 0) {
+                $productAgreements = array();
                 foreach($groupAgreements as &$agreement) {
                     if (static::checkAgreementDate($agreement)) {
                         $agreement['PRODUCTS'] = ProductGroups::getProductsId($agreement['CATALOG_GROUP']);
                         foreach ($agreement['PRODUCTS'] as $productId) {
-                            $productAgreements[$productId]['GROUP'][] = $agreement['PRICE_GROUP'];
+                            $productAgreements[$productId][] = $agreement['PRICE_GROUP'];
                         }
                         unset($productId);
                     }
@@ -205,7 +113,7 @@ class PriceModList
                 $productGroupPrices = array();
                 foreach ($productAgreements as $productId => $prices) {
                     $minPriceGroup = 0;
-                    foreach ($prices['GROUP'] as $price) {
+                    foreach ($prices as $price) {
                         if ($price >= $minPriceGroup) {
                             $minPriceGroup = $price;
                             $productGroupPrices[$productId] = $minPriceGroup;
@@ -214,50 +122,42 @@ class PriceModList
                     unset($price);
                 }
                 unset($productAgreements, $productId, $prices);
-                
+
                 if (count($productGroupPrices) > 0) {
-                    return static::getPriceByGroup($productGroupPrices);
+                    $products = static::getPriceByGroup($productGroupPrices);
                 }
             }
+
+            $individualAgreements = $company->getIndividualAgreements();
+            if (count($individualAgreements) > 0) {
+                foreach ($individualAgreements as $agreement) {
+                    if (static::checkAgreementDate($agreement)) {
+                        $products[$agreement['PRODUCT']] = static::setProductPrice($agreement);
+                    }
+                }
+            }
+
+            return $products;
         }
 
         return false;
     }
 
-    protected static function getPriceByGroup($products)
+    protected static function getPriceByGroup($productGroupPrices)
     {
-        $productsId = array_keys($products);
-        $priceGroups = array_values($products);
+        $productsId = array_keys($productGroupPrices);
+        $priceGroups = array_values($productGroupPrices);
         $rsProductsPrice = PriceTable::getList(array(
             'filter' => array('@PRODUCT_ID' => $productsId, '@CATALOG_GROUP_ID' => $priceGroups)
         ))->fetchAll();
 
         $res = array();
         foreach ($rsProductsPrice as $productPrice) {
-            if ($products[$productPrice['PRODUCT_ID']] == $productPrice['CATALOG_GROUP_ID']) {
-                $res[$productPrice['PRODUCT_ID']] = array(
-                    'UNROUND_PRICE' => $productPrice['PRICE'],
-                    'PRICE' => round($productPrice['PRICE']),
-                    'ID' => $productPrice['ID'],
-                    'PRICE_TYPE_ID' => $productPrice['CATALOG_GROUP_ID'],
-                    'CURRENCY' => $productPrice['CURRENCY']
-                );
+            if ($productGroupPrices[$productPrice['PRODUCT_ID']] == $productPrice['CATALOG_GROUP_ID']) {
+                $res[$productPrice['PRODUCT_ID']] = static::setProductPrice($productPrice);
             }
         }
 
         return $res;
-    }
-
-    protected static function checkAgreementDate($agreement)
-    {
-        $begin = $agreement['BEGIN'] instanceof \Bitrix\Main\Type\Date ? $agreement['BEGIN']->getTimestamp() : 0;
-        $end = $agreement['END'] instanceof \Bitrix\Main\Type\Date ? $agreement['END']->getTimestamp() : INF;
-        return $begin < time() && time() < $end;
-    }
-
-    protected static function getCompany()
-    {
-        global $USER;
-        return CompanyBase::getByID($USER->GetID());
     }
 }

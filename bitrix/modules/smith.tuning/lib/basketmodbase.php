@@ -22,7 +22,7 @@ use \Smith\B2B\Manager;
 use \Smith\B2B\CompanyBase;
 use \Smith\B2B\ProductGroups;
 
-class BasketModBase 
+class BasketModBase extends Base
 {
     protected $basketStorage;
     protected $arGiftIds = array();
@@ -60,7 +60,6 @@ class BasketModBase
                     $this->clientId = $clientId;
                 }
                 $APPLICATION->set_cookie("B2B_CLIENT_ID", $this->clientId);
-                \Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($this->clientId, true));
             }
 
             $this->obtainCompany();
@@ -159,8 +158,8 @@ class BasketModBase
             $rsPrices = \CPrice::GetList(
                 array(),
                 array(
-                  'PRODUCT_ID' => $basketItem->getProductId(),
-                  'CATALOG_GROUP_ID' => $priceId,
+                    'PRODUCT_ID' => $basketItem->getProductId(),
+                    'CATALOG_GROUP_ID' => $priceId,
                 )
             );
 
@@ -168,7 +167,7 @@ class BasketModBase
             
             if ($arPrice = $rsPrices->Fetch())
             {
-                return CCurrencyRates::ConvertCurrency($arPrice['PRICE'], $arPrice['CURRENCY'], "RUB");
+                return CCurrencyRates::ConvertCurrency($arPrice['PRICE'], $arPrice['CURRENCY'], 'RUB');
             }
             
             return $basketItem->getField('BASE_PRICE');
@@ -180,10 +179,10 @@ class BasketModBase
     protected function getPersonPriceType($userId)
     {
         $personPriceGroups = \Bitrix\Catalog\GroupAccessTable::getList([
-            "select" => ["CATALOG_GROUP_ID"],
-            "filter" => [
-                "=GROUP_ID" => CUser::GetUserGroup($userId),
-                "=ACCESS" => 'Y'
+            'select' => ['CATALOG_GROUP_ID'],
+            'filter' => [
+                '=GROUP_ID' => CUser::GetUserGroup($userId),
+                '=ACCESS' => 'Y'
             ]
         ])->fetchAll();
         $personPriceGroups = array_map(function($item) {
@@ -226,14 +225,15 @@ class BasketModBase
     protected function obtainAgreements() 
     {
         if ($this->company instanceof CompanyBase) {
-            $productAgreements = array();
+            $productPrices = array();
             $groupAgreements = $this->company->getGroupAgreements();
             if (count($groupAgreements) > 0) {
+                $productAgreements = array();
                 foreach($groupAgreements as &$agreement) {
-                    if ($this->checkAgreementDate($agreement)) {
+                    if (static::checkAgreementDate($agreement)) {
                         $agreement['PRODUCTS'] = ProductGroups::getProductsId($agreement['CATALOG_GROUP']);
                         foreach ($agreement['PRODUCTS'] as $productId) {
-                            $productAgreements[$productId]['GROUP'][] = $agreement['PRICE_GROUP'];
+                            $productAgreements[$productId][] = $agreement['PRICE_GROUP'];
                         }
                         unset($productId);
                     }
@@ -243,7 +243,7 @@ class BasketModBase
                 $productGroupPrices = array();
                 foreach ($productAgreements as $productId => $prices) {
                     $minPriceGroup = 0;
-                    foreach ($prices['GROUP'] as $price) {
+                    foreach ($prices as $price) {
                         if ($price >= $minPriceGroup) {
                             $minPriceGroup = $price;
                             $productGroupPrices[$productId] = $minPriceGroup;
@@ -253,7 +253,6 @@ class BasketModBase
                 }
                 unset($productAgreements, $productId, $prices);
 
-                $productPrices = array();
                 if (count($productGroupPrices) > 0) {
                     $productsId = array_keys($productGroupPrices);
                     $priceGroups = array_values($productGroupPrices);
@@ -267,17 +266,19 @@ class BasketModBase
                     }
                     unset($productGroupPrices, $productsId, $priceGroups, $rsProductsPrice, $price);
                 }
-
-                $this->companyAgreements = $productPrices;
             }
-        }
-    }
 
-    protected function checkAgreementDate($agreement)
-    {
-        $begin = $agreement['BEGIN'] instanceof \Bitrix\Main\Type\Date ? $agreement['BEGIN']->getTimestamp() : 0;
-        $end = $agreement['END'] instanceof \Bitrix\Main\Type\Date ? $agreement['END']->getTimestamp() : INF;
-        return $begin < time() && time() < $end;
+            $individualAgreements = $this->company->getIndividualAgreements();
+            if (count($individualAgreements) > 0) {
+                foreach ($individualAgreements as $agreement) {
+                    if (static::checkAgreementDate($agreement)) {
+                        $productPrices[$agreement['PRODUCT']] = CCurrencyRates::ConvertCurrency($agreement['PRICE'], $agreement['CURRENCY'], 'RUB');
+                    }
+                }
+            }
+
+            $this->companyAgreements = $productPrices;
+        }
     }
 
     protected function getBasketStorage()
