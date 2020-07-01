@@ -19,14 +19,15 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 	const RETAIL    = 3;
 	const WHOLESALE = 4;
 	const PAY_ERROR = 19;
+	const SBER_PAY = 12;
 	const PAY_DEALS = [
 		self::RETAIL => [
 			'Оплата при получении' => 11,
-			'Оплата картой 100%' => 12
+			'Оплата картой 100%' => self::SBER_PAY
 		],
 		self::WHOLESALE => [
 			'Оплата при получении' => 15,
-			'Оплата картой 100%' => 12,
+			'Оплата картой 100%' => self::SBER_PAY,
 			'Оплата по б/н с отсрочкой 14 дней' => 17,
 			'Оплата по б/н с отсрочкой 30 дней' => 20
 		]
@@ -69,6 +70,15 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 					
 					$paymentFields['REK_VALUES']['PAY_SYSTEM_ID'] = $this->getPaySystem($documentOrder);
 					$paymentFields['REK_VALUES']['PAY_SYSTEM_ID_DEFAULT'] = $this->getDefaultPaySystem($documentOrder);
+
+					if (!$this->isOrderPaid($documentOrder) && 
+						$paymentFields['REK_VALUES']['1C_PAYED'] == 'Y' &&
+						$paymentFields['REK_VALUES']['PAY_SYSTEM_ID'] === self::SBER_PAY) 
+					{
+						$paymentFields['REK_VALUES']['1C_PAYED_NUM'] = false;
+						$paymentFields['REK_VALUES']['1C_PAYED'] = 'N';
+						$paymentFields['REK_VALUES']['1C_PAYED_DATE'] = false;
+					}
 
 					if ($this->checkOrderAmount($paymentFields['AMOUNT'], $orderAmount)) {
 						$document->setFields($paymentFields);
@@ -137,6 +147,18 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 	{
 		$fields = $document->getFieldValues();
 		return $fields['AMOUNT'];
+	}
+
+	protected function isOrderPaid(OneC\OrderDocument $document) 
+	{
+		$fields = $document->getFieldValues();
+		
+		if ($fields['ID'] > 0) {
+			$order = Order::load($fields['ID']);
+			return $order->isPaid();
+		}
+
+		return false;
 	}
 
 	/**

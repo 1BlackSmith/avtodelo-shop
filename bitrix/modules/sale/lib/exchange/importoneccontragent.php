@@ -64,8 +64,6 @@ final class ImportOneCContragent extends ImportOneCBase
 					$params['ORDER_PROP'] = $item->getPropertyOrdersByConfig($personalTypeId, array(), $property);
 				}
 
-				//\Bitrix\Main\IO\File::putFileContents($_SERVER["DOCUMENT_ROOT"]."/log2.txt", '<pre>' . print_r($params, true) . '</pre>');
-
 				unset($params['ORDER_PROPS']);
 				$item->setFields($params);
 
