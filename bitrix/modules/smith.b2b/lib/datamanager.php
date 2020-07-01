@@ -324,30 +324,30 @@ class DataManager
         return $store;
     }
 
-    protected static function changeTradeAgreementGroup(TradeAgreementGroup $agreementGroup, $data, $save = true) 
+    protected static function changeTradeAgreementGroup(TradeAgreementGroup $agreement, $data, $save = true) 
     {
         foreach ($data as $k => $v) {
             switch ($k) {
                 case 'CATALOG_GROUP_ID':
-                    $agreementGroup->setCatalogGroup($v);
+                    $agreement->setCatalogGroup($v);
                     break;
                 case 'PRICE_GROUP_ID':
-                    $agreementGroup->setPriceGroup($v);
+                    $agreement->setPriceGroup($v);
                     break;
                 case 'DATE_BEGIN':
-                    $agreementGroup->setBegin($v);
+                    $agreement->setBegin($v);
                     break;
                 case 'DATE_END':
-                    $agreementGroup->setEnd($v);
+                    $agreement->setEnd($v);
                     break;
             }
         }
 
         if ($save) {
-            return static::saveObj($agreementGroup);
+            return static::saveObj($agreement);
         }
 
-        return $agreementGroup;
+        return $agreement;
     }
 
     protected static function changeTradeAgreementIndividual(TradeAgreementIndividual $agreement, $data, $save = true) 
@@ -363,10 +363,10 @@ class DataManager
                 case 'CURRENCY':
                     $agreement->setCurrency($v);
                     break;
-                case 'BEGIN':
+                case 'DATE_BEGIN':
                     $agreement->setBegin($v);
                     break;
-                case 'END':
+                case 'DATE_END':
                     $agreement->setEnd($v);
                     break;
             }

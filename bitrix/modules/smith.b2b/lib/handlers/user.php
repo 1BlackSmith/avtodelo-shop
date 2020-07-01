@@ -9,36 +9,6 @@ use \CAdminCalendar;
 use Smith\B2B\Company;
 use Smith\B2B\CompanyBase;
 
-/*
-    0 => [
-    *   'ID' => 240,
-        'DIRECT_ID' => 123,
-        'MANAGER_ID' => 123,
-        'COMPANIES' => [
-            0 => [
-                'OWNERSHIP_TYPE' => 'ИП',
-                'NAME' => 'Рога и Ко',
-                'BRAND' => 'Рога',
-    *           'INN' => 123123,
-                'OGRN' => 123123,
-                'KPP' => 123123,
-                'ADDRESS' => 'адрес',
-                'STORES' => [
-                    0 => [
-    *                   'NAME' => '123123',
-                        'ADDRESS' => '123123'
-                    ],
-                    1 => [
-                        'NAME' => '123123',
-                        'ADDRESS' => '123123' 
-                    ]
-                ]
-            ]
-        ]
-    ]
-*/
-
-
 class User
 {
     public function OnAfterUserAdd(&$arFields)
@@ -168,12 +138,12 @@ class User
         foreach ($arProductIDs as $k => $v) {
             if (!$v || !$arPrices[$k]) continue;
             $res[] = array(
-                'ID'       => $arIDs[$k] ? $arIDs[$k] : false,
-                'PRODUCT'  => $v,
-                'PRICE'    => $arPrices[$k],
-                'CURRENCY' => $arCurrencies[$k],
-                'BEGIN'    => $arDateBegin[$k],
-                'END'      => $arDateEnd[$k],
+                'ID'         => $arIDs[$k] ? $arIDs[$k] : false,
+                'PRODUCT'    => $v,
+                'PRICE'      => $arPrices[$k],
+                'CURRENCY'   => $arCurrencies[$k],
+                'DATE_BEGIN' => $arDateBegin[$k],
+                'DATE_END'   => $arDateEnd[$k],
             ); 
         }
 
@@ -330,6 +300,7 @@ class User
                     '<a href="javascript:;" class="adm-btn adm-btn-delete adm-btn-delete-item" data-entity="agreement_group" onclick="onClickBtnDelete(this, '.$agreement['ID'].')">Удалить</a>'
                 );
             }
+            unset($groupAgreements, $agreement);
             $rows .= self::getMultipleRow(
                 '<input type="hidden" name="AGREEMENT_GROUP_ID[]">'.
                 SelectBoxFromArray("CATALOG_GROUP[]", $catalogGroups, "", "", "")."&nbsp;".
@@ -345,6 +316,7 @@ class User
             </tr>';
 
             $rows .= self::getDelimiter('Индивидуальные торговые соглашения');
+            \Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($individualAgreements, true));
             foreach ($individualAgreements as $agreement) {
                 $productId = $agreement['PRODUCT'];
                 $productName = $arIndividualProducts[$productId]['NAME'];
@@ -355,11 +327,12 @@ class User
                     '<span style="display: inline-block; width: 300px; vertical-align: middle; text-align: right; margin-right: 5px;">'.$productName."<br>Артикул: ".$productArtnumber.'</span>'."&nbsp;".
                     '<input type="text" name="AGREEMENT_IND_PRICE[]" size="6" placeholder="Цена" value="'.$agreement['PRICE'].'">'."&nbsp;".
                     SelectBoxFromArray("AGREEMENT_IND_CURRENCY[]", $currencies, $agreement['CURRENCY'], "", "")."&nbsp;".
-                    '<input type="text" value="" name="AGREEMENT_IND_BEGIN[]" onclick="BX.calendar({node: this, field: this, bTime: false});" value="'.$agreement['BEGIN'].'" size="8">'."&nbsp;".
-                    '<input type="text" value="" name="AGREEMENT_IND_END[]" onclick="BX.calendar({node: this, field: this, bTime: false});" value="'.$agreement['END'].'" size="8">'."&nbsp;".
+                    '<input type="text" value="'.$agreement['BEGIN'].'" name="AGREEMENT_IND_BEGIN[]" onclick="BX.calendar({node: this, field: this, bTime: false});" size="8">'."&nbsp;".
+                    '<input type="text" value="'.$agreement['END'].'" name="AGREEMENT_IND_END[]" onclick="BX.calendar({node: this, field: this, bTime: false});" size="8">'."&nbsp;".
                     '<a href="javascript:;" class="adm-btn adm-btn-delete adm-btn-delete-item" data-entity="agreement_ind" onclick="onClickBtnDelete(this, '.$agreement['ID'].')">Удалить</a>'
                 );
             }
+            unset($individualAgreements, $agreement);
             $rows .= self::getMultipleRow(
                 '<input type="hidden" name="AGREEMENT_IND_ID[]">'.
                 '<input type="hidden" class="ind-product-id" name="AGREEMENT_IND_PRODUCT_ID[]">'.
