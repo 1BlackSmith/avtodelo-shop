@@ -133,19 +133,19 @@ class CompanyBase extends DataManager
         return $stores->save();
     }
 
-    protected function changeTradeAgreementsGroup(TradeAgreementsGroup $agreementGroups, $data)
+    protected function changeTradeAgreementsGroup(TradeAgreementsGroup $agreements, $data)
     {
         $companyId = $this->company->getId();
         foreach ($data as $agreementData) {
             if (!$agreementData['ID']) {
-                $agreementGroups[] = static::addTradeAgreementGroup($companyId, $agreementData, false);
-            } elseif ($agreementGroups->hasByPrimary($agreementData['ID'])) {
-                $group = $agreementGroups->getByPrimary($agreementData['ID']);
+                $agreements[] = static::addTradeAgreementGroup($companyId, $agreementData, false);
+            } elseif ($agreements->hasByPrimary($agreementData['ID'])) {
+                $group = $agreements->getByPrimary($agreementData['ID']);
                 static::changeTradeAgreementGroup($group, $agreementData, false);
             }
         }
 
-        return $agreementGroups->save();
+        return $agreements->save();
     }
 
     protected function changeTradeAgreementsIndividual(TradeAgreementsIndividual $agreements, $data)
@@ -155,8 +155,8 @@ class CompanyBase extends DataManager
             if (!$agreementData['ID']) {
                 $agreements[] = static::addTradeAgreementIndividual($companyId, $agreementData, false);
             } elseif ($agreements->hasByPrimary($agreementData['ID'])) {
-                $group = $agreements->getByPrimary($agreementData['ID']);
-                static::changeTradeAgreementIndividual($group, $agreementData, false);
+                $agreement = $agreements->getByPrimary($agreementData['ID']);
+                static::changeTradeAgreementIndividual($agreement, $agreementData, false);
             }
         }
 
