@@ -147,6 +147,31 @@ class OrderSave
                             $propertyItem->setField('VALUE', $deal);
                         }
                         break;
+                    case 'PAY_TYPE':
+                        switch ($paymentId) {
+                            case 12:
+                            case 17:
+                            case 20:
+                                $payType = "Безналичная";
+                                break;
+                            case 15:
+                                $payType = "Наличная";
+                                break;
+                        }
+                        if (!empty($payType)) {
+                            $propertyItem->setField('VALUE', $payType);
+                        }
+                        break;
+                    case 'CASHBOX':
+                        switch ($paymentId) {
+                            case 15:
+                                $payType = "Касса Протон";
+                                break;
+                        }
+                        if (!empty($payType)) {
+                            $propertyItem->setField('VALUE', $payType);
+                        }
+                        break;
                     case 'PAYMENT':
                         if (isset(self::PAYMENTS[$paymentId])) {
                             $propertyItem->setField('VALUE', self::PAYMENTS[$paymentId]);
