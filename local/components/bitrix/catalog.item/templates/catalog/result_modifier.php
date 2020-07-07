@@ -4,7 +4,7 @@ use \Bitrix\Main\Loader;
 use \Redsign\MegaMart\MyTemplate;
 
 define('GROUP_IDS', [
-    'manager' => 8,
+    'manager' => 27,
     'admin' => 1
   ]
 );

@@ -905,7 +905,7 @@ if (Loader::includeModule('smith.bonusengine')) {
 }
 
 define('GROUP_IDS', [
-		'manager' => 8,
+		'manager' => 27,
 		'admin' => 1
 	]
 );

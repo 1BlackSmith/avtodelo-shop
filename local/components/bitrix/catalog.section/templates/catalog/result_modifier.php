@@ -269,70 +269,70 @@ if (is_array($arResult['ITEMS']) && count($arResult['ITEMS']) > 0)
 	}
 
 	// quickbuy & daysarticle
-	if (is_array($arElements) && count($arElements) > 0)
-	{
-		$iTime = ConvertTimeStamp(time(), 'FULL');
+	// if (is_array($arElements) && count($arElements) > 0)
+	// {
+	// 	$iTime = ConvertTimeStamp(time(), 'FULL');
 
-		if (Loader::includeModule('redsign.quickbuy'))
-		{
-			$arFilter = array(
-				'DATE_FROM' => $iTime,
-				'DATE_TO' => $iTime,
-				'QUANTITY' => 0,
-				'ELEMENT_ID' => array_keys($arElements),
-			);
-			$dbRes = CRSQUICKBUYElements::GetList(array('ID' => 'SORT'), $arFilter);
-			while ($arData = $dbRes->Fetch())
-			{
-				if ($arData['QUANTITY'] > 0 && array_key_exists($arData['ELEMENT_ID'], $arElements))
-				{
-					$arData['TIMER'] = CRSQUICKBUYMain::GetTimeLimit($arData);
-					if (is_array($arElements[$arData['ELEMENT_ID']]['OFFERS']) && count($arElements[$arData['ELEMENT_ID']]['OFFERS']) > 0)
-					{
-						foreach ($arElements[$arData['ELEMENT_ID']]['OFFERS'] as $offerKey => $offer)
-						{
-							$arElements[$arData['ELEMENT_ID']]['OFFERS'][$offerKey]['QUICKBUY'] = $arData;
-						}
-						unset($offerKey, $offer);
-					}
-					else
-					{
-						$arElements[$arData['ELEMENT_ID']]['QUICKBUY'] = $arData;
-					}
-				}
-			}
-		}
+	// 	if (Loader::includeModule('redsign.quickbuy'))
+	// 	{
+	// 		$arFilter = array(
+	// 			'DATE_FROM' => $iTime,
+	// 			'DATE_TO' => $iTime,
+	// 			'QUANTITY' => 0,
+	// 			'ELEMENT_ID' => array_keys($arElements),
+	// 		);
+	// 		$dbRes = CRSQUICKBUYElements::GetList(array('ID' => 'SORT'), $arFilter);
+	// 		while ($arData = $dbRes->Fetch())
+	// 		{
+	// 			if ($arData['QUANTITY'] > 0 && array_key_exists($arData['ELEMENT_ID'], $arElements))
+	// 			{
+	// 				$arData['TIMER'] = CRSQUICKBUYMain::GetTimeLimit($arData);
+	// 				if (is_array($arElements[$arData['ELEMENT_ID']]['OFFERS']) && count($arElements[$arData['ELEMENT_ID']]['OFFERS']) > 0)
+	// 				{
+	// 					foreach ($arElements[$arData['ELEMENT_ID']]['OFFERS'] as $offerKey => $offer)
+	// 					{
+	// 						$arElements[$arData['ELEMENT_ID']]['OFFERS'][$offerKey]['QUICKBUY'] = $arData;
+	// 					}
+	// 					unset($offerKey, $offer);
+	// 				}
+	// 				else
+	// 				{
+	// 					$arElements[$arData['ELEMENT_ID']]['QUICKBUY'] = $arData;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
 
-		if (Loader::includeModule('redsign.daysarticle2'))
-		{
-			$arFilter = array(
-				'DATE_FROM' => $iTime,
-				'DATE_TO' => $iTime,
-				'QUANTITY' => 0,
-				'ELEMENT_ID' => array_keys($arElements),
-			);
-			$dbRes = CRSDA2Elements::GetList(array('ID' => 'SORT'), $arFilter);
-			while ($arData = $dbRes->Fetch())
-			{
-				if ($arData['QUANTITY'] > 0 && array_key_exists($arData['ELEMENT_ID'], $arElements))
-				{
-					$arData['DINAMICA_EX'] = CRSDA2Elements::GetDinamica($arData);
-					if (is_array($arElements[$arData['ELEMENT_ID']]['OFFERS']) && count($arElements[$arData['ELEMENT_ID']]['OFFERS']) > 0)
-					{
-						foreach ($arElements[$arData['ELEMENT_ID']]['OFFERS'] as $offerKey => $offer)
-						{
-							$arElements[$arData['ELEMENT_ID']]['OFFERS'][$offerKey]['DAYSARTICLE'] = $arData;
-						}
-						unset($offerKey, $offer);
-					}
-					else
-					{
-						$arElements[$arData['ELEMENT_ID']]['DAYSARTICLE'] = $arData;
-					}
-				}
-			}
-		}
-	}
+	// 	if (Loader::includeModule('redsign.daysarticle2'))
+	// 	{
+	// 		$arFilter = array(
+	// 			'DATE_FROM' => $iTime,
+	// 			'DATE_TO' => $iTime,
+	// 			'QUANTITY' => 0,
+	// 			'ELEMENT_ID' => array_keys($arElements),
+	// 		);
+	// 		$dbRes = CRSDA2Elements::GetList(array('ID' => 'SORT'), $arFilter);
+	// 		while ($arData = $dbRes->Fetch())
+	// 		{
+	// 			if ($arData['QUANTITY'] > 0 && array_key_exists($arData['ELEMENT_ID'], $arElements))
+	// 			{
+	// 				$arData['DINAMICA_EX'] = CRSDA2Elements::GetDinamica($arData);
+	// 				if (is_array($arElements[$arData['ELEMENT_ID']]['OFFERS']) && count($arElements[$arData['ELEMENT_ID']]['OFFERS']) > 0)
+	// 				{
+	// 					foreach ($arElements[$arData['ELEMENT_ID']]['OFFERS'] as $offerKey => $offer)
+	// 					{
+	// 						$arElements[$arData['ELEMENT_ID']]['OFFERS'][$offerKey]['DAYSARTICLE'] = $arData;
+	// 					}
+	// 					unset($offerKey, $offer);
+	// 				}
+	// 				else
+	// 				{
+	// 					$arElements[$arData['ELEMENT_ID']]['DAYSARTICLE'] = $arData;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	foreach ($arResult['ITEMS'] as $key => $item)
 	{
@@ -352,52 +352,52 @@ if (is_array($arResult['ITEMS']) && count($arResult['ITEMS']) > 0)
 		}
 
 		// gifts
-		if ($arResult['MODULES']['sale'] && $arParams['USE_GIFTS'] == 'Y')
-		{
-			global $USER;
-			$userId = $USER instanceof CAllUser? $USER->getId() : null;
-			$giftManager = \Bitrix\Sale\Discount\Gift\Manager::getInstance()->setUserId($userId);
+		// if ($arResult['MODULES']['sale'] && $arParams['USE_GIFTS'] == 'Y')
+		// {
+		// 	global $USER;
+		// 	$userId = $USER instanceof CAllUser? $USER->getId() : null;
+		// 	$giftManager = \Bitrix\Sale\Discount\Gift\Manager::getInstance()->setUserId($userId);
 
-			if ($arParams['PRODUCT_DISPLAY_MODE'] === 'N' && $haveOffers)
-			{
-				$price = $item['ITEM_START_PRICE'];
-				$minOffer = $item['OFFERS'][$item['ITEM_START_PRICE_SELECTED']];
-				$measureRatio = $minOffer['ITEM_MEASURE_RATIOS'][$minOffer['ITEM_MEASURE_RATIO_SELECTED']]['RATIO'];
-			}
-			else
-			{
-				$price = $item['ITEM_PRICES'][$item['ITEM_PRICE_SELECTED']];
-				$measureRatio = $price['MIN_QUANTITY'];
-			}
+		// 	if ($arParams['PRODUCT_DISPLAY_MODE'] === 'N' && $haveOffers)
+		// 	{
+		// 		$price = $item['ITEM_START_PRICE'];
+		// 		$minOffer = $item['OFFERS'][$item['ITEM_START_PRICE_SELECTED']];
+		// 		$measureRatio = $minOffer['ITEM_MEASURE_RATIOS'][$minOffer['ITEM_MEASURE_RATIO_SELECTED']]['RATIO'];
+		// 	}
+		// 	else
+		// 	{
+		// 		$price = $item['ITEM_PRICES'][$item['ITEM_PRICE_SELECTED']];
+		// 		$measureRatio = $price['MIN_QUANTITY'];
+		// 	}
 
-			$potentialBuy = array(
-				'ID' => isset($item['ID']) ? $item['ID'] : null,
-				'MODULE' => isset($arResult['MODULE']) ? $arResult['MODULE'] : 'catalog',
-				'PRODUCT_PROVIDER_CLASS' => isset($arResult['PRODUCT_PROVIDER_CLASS']) ? $arResult['PRODUCT_PROVIDER_CLASS'] : 'CCatalogProductProvider',
-				'QUANTITY' => isset($price['MIN_QUANTITY']) ? $price['MIN_QUANTITY'] : 1,
-			);
+		// 	$potentialBuy = array(
+		// 		'ID' => isset($item['ID']) ? $item['ID'] : null,
+		// 		'MODULE' => isset($arResult['MODULE']) ? $arResult['MODULE'] : 'catalog',
+		// 		'PRODUCT_PROVIDER_CLASS' => isset($arResult['PRODUCT_PROVIDER_CLASS']) ? $arResult['PRODUCT_PROVIDER_CLASS'] : 'CCatalogProductProvider',
+		// 		'QUANTITY' => isset($price['MIN_QUANTITY']) ? $price['MIN_QUANTITY'] : 1,
+		// 	);
 
-			$collections = $giftManager->getCollectionsByProduct(
-				\Bitrix\Sale\Basket::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), SITE_ID), $potentialBuy
-			);
+		// 	$collections = $giftManager->getCollectionsByProduct(
+		// 		\Bitrix\Sale\Basket::loadItemsForFUser(\Bitrix\Sale\Fuser::getId(), SITE_ID), $potentialBuy
+		// 	);
 
-			if (is_array($collections) && count($collections) > 0)
-			{
-				$item['GIFT_ITEMS'] = array();
-				foreach ($collections as $collection)
-				{
-					foreach ($collection as $gift)
-					{
-						$productId = $gift->getProductId();
-						$item['GIFT_ITEMS'][$productId] = $productId;
-					}
-					unset($gift);
-				}
-				unset($collection);
+		// 	if (is_array($collections) && count($collections) > 0)
+		// 	{
+		// 		$item['GIFT_ITEMS'] = array();
+		// 		foreach ($collections as $collection)
+		// 		{
+		// 			foreach ($collection as $gift)
+		// 			{
+		// 				$productId = $gift->getProductId();
+		// 				$item['GIFT_ITEMS'][$productId] = $productId;
+		// 			}
+		// 			unset($gift);
+		// 		}
+		// 		unset($collection);
 
-				$arResult['ITEMS'][$key]['GIFT_ITEMS'] = $item['GIFT_ITEMS'];
-			}
-		}
+		// 		$arResult['ITEMS'][$key]['GIFT_ITEMS'] = $item['GIFT_ITEMS'];
+		// 	}
+		// }
 
 
 		if ($arParams['DISPLAY_PREVIEW_TEXT'] == 'Y' && $arParams['PREVIEW_TRUNCATE_LEN'] > 0)
@@ -504,89 +504,33 @@ if ($arParams['SHOW_PARENT_DESCR'] == 'Y' && $arResult['ID'] == 0)
 	unset($arOrder, $arFilter, $bIncCnt);
 }
 
-$arResult['BACKGROUND_COLOR'] = false;
-if ($arParams['BACKGROUND_COLOR'] != '')
-{
-	if (!empty($arResult[$arParams['BACKGROUND_COLOR']]))
-	{
-		$arResult['BACKGROUND_COLOR'] = $arResult[$arParams['BACKGROUND_COLOR']];
-	}
-	elseif (!empty($arResult['PATH']))
-	{
-		$arSectionsPath = array();
-		foreach ($arResult['PATH'] as $key => $arSection)
-		{
-			$arSectionsPath[$arSection['ID']] = $arResult['PATH'][$key];
-		}
-		unset($key, $arSection);
-
-		if (count($arSectionsPath) > 0)
-		{
-			$sectionIterator = \CIBlockSection::GetList(
-				array(
-					'DEPTH_LEVEL' => 'DESC',
-				),
-				array(
-					'IBLOCK_ID' => $arResult['IBLOCK_ID'],
-					'=ID' => array_keys($arSectionsPath),
-				),
-				false,
-				array(
-					'ID',
-					'IBLOCK_ID',
-					'NAME',
-					'DEPTH_LEVEL',
-					'UF_*',
-					$arParams['BACKGROUND_COLOR'],
-				)
-			);
-
-			while ($arSection = $sectionIterator->GetNext())
-			{
-				if (!empty($arSection[$arParams['BACKGROUND_COLOR']]))
-				{
-					$arResult['BACKGROUND_COLOR'] = $arSection[$arParams['BACKGROUND_COLOR']];
-					break;
-				}
-			}
-			unset($sectionIterator, $arSection);
-		}
-	}
-}
-
-if ($arResult['BACKGROUND_COLOR'])
-{
-	$component->arResult['BACKGROUND_COLOR'] = $arResult['BACKGROUND_COLOR'];
-}
-
 $component->SetResultCacheKeys(
 	array(
 		'AJAX_ID',
-		'BACKGROUND_COLOR',
 	)
 );
 
 
 // Разграничение показа товаров на разных сайтах
-if (!function_exists('items_filter')) {
-	function items_filter($item) 
-	{
-		$itemSection = CIBlockSection::GetList(
-			array('SORT' => 'ASC'),
-			array(
-				'ID' => $item['SECTION']['ID'],
-				'IBLOCK_ID' => $item['SECTION']['IBLOCK_ID']
-			),
-			false,
-			array('UF_DISPLAY')
-      	);
-      	if ($section = $itemSection->GetNext()) {
-			$SITE_ID = (SITE_ID === 's1') ? 8 : 9;
-			return in_array($SITE_ID, $section['UF_DISPLAY']);
-		}
-	}
-};
-$arResult["ITEMS"] = array_filter($arResult["ITEMS"], "items_filter");
+// if (!function_exists('items_filter')) {
+// 	function items_filter($item) 
+// 	{
+// 		$itemSection = CIBlockSection::GetList(
+// 			array('SORT' => 'ASC'),
+// 			array(
+// 				'ID' => $item['SECTION']['ID'],
+// 				'IBLOCK_ID' => $item['SECTION']['IBLOCK_ID']
+// 			),
+// 			false,
+// 			array('UF_DISPLAY')
+//       	);
+//       	if ($section = $itemSection->GetNext()) {
+// 			$SITE_ID = (SITE_ID === 's1') ? 8 : 9;
+// 			return in_array($SITE_ID, $section['UF_DISPLAY']);
+// 		}
+// 	}
+// };
+// $arResult["ITEMS"] = array_filter($arResult["ITEMS"], "items_filter");
 
 
 //fix prices
