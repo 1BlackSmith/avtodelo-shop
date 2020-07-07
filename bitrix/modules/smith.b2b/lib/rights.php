@@ -39,7 +39,7 @@ class Rights
 
         // Пока работает только с одной компанией
         if ($this->checkEmploee()) {
-            return array($this->companiesID[0], self::RIGHTS_MANAGER);
+            return array($this->companiesID[0], self::RIGHTS_EMPLOEE);
         }
 
         return array(0, self::RIGHTS_NONE);
@@ -105,7 +105,7 @@ class Rights
     {
         $storesIDs = ManagerForStoreTable::getList(array(
             'select' => array('STORE_ID'),
-            'filter' => array('=USER_ID' => $this->useID)
+            'filter' => array('=USER_ID' => $this->userID)
         ))->fetchAll();
 
         if (count($storesIDs)) {
