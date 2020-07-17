@@ -225,6 +225,9 @@ class OrderHandler
 				case 'PAYMENT':
 					$propertyItem->setField('VALUE', self::PAYMENTS[$paymentId]);
 					break;
+				case 'CONTACT':
+					$propertyItem->setField('VALUE', $propsData['FIO']);
+					break;
 			}
 		}
 	}

@@ -191,6 +191,9 @@ class OrderSave
                         }
                         $propertyItem->setField('VALUE', $storeName);
                         break;
+                    case 'CONTACT':
+                        $propertyItem->setField('VALUE', $userData['NAME'].' '.$userData['LAST_NAME']);
+                        break;
                 }
             }
 
