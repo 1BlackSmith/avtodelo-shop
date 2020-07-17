@@ -25,15 +25,17 @@ class PriceModList extends PriceModBase
             $item['BASE_PRICE_CODE'] = $arResult['BASE_PRICE_CODE'];
         }
 
-        $arResult['PRICES'] = static::getPricesItems($itemsId);
+        if (count($itemsId) > 0) {
+            $arResult['PRICES'] = static::getPricesItems($itemsId);
 
-        $company = static::getCompany();
-        if ($company) {
-            $arResult['B2B_AGREEMENTS'] = static::getAgreementsPrice($company);
+            $company = static::getCompany();
+            if ($company) {
+                $arResult['B2B_AGREEMENTS'] = static::getAgreementsPrice($company);
 
-            foreach ($items as &$item) {
-                if (is_set($price = $arResult['B2B_AGREEMENTS'][$item['ID']]))
-                $item['B2B_AGREEMENTS'] = $price;
+                foreach ($items as &$item) {
+                    if (is_set($price = $arResult['B2B_AGREEMENTS'][$item['ID']]))
+                    $item['B2B_AGREEMENTS'] = $price;
+                }
             }
         }
     }

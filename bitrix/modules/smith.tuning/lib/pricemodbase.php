@@ -15,44 +15,46 @@ class PriceModBase extends Base
         if (count($item['PRICES']) > 1) {
             $selectedPrice = $item['ITEM_PRICE_SELECTED'];
             $arCurPrice =& $item['ITEM_PRICES'][$selectedPrice];
-            foreach ($arCurPrice as $CODE => &$v) {
-                switch ($CODE) {
-                    case 'BASE_PRICE':
-                        $v = $arBasePrice['VALUE'];
-                        break;
-                    case 'DISCOUNT':
-                        $v = $arCurPrice['BASE_PRICE'] - $arCurPrice['PRICE'];
-                        break;
-                    case 'PERCENT':
-                        $v = 100 - round($arCurPrice['PRICE'] / $arCurPrice['BASE_PRICE'] * 100);
-                        break;
-                    case 'PRINT_PRICE':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'RATIO_PRICE':
-                        $v = $arCurPrice['PRICE'];
-                        break;
-                    case 'PRINT_RATIO_PRICE':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['RATIO_PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'PRINT_BASE_PRICE':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['BASE_PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'RATIO_BASE_PRICE':
-                        $v = $arCurPrice['BASE_PRICE'];
-                        break;
-                    case 'PRINT_RATIO_BASE_PRICE':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['RATIO_BASE_PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'PRINT_DISCOUNT':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['DISCOUNT'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
-                    case 'RATIO_DISCOUNT':
-                        $v = $arCurPrice['DISCOUNT'];
-                        break;
-                    case 'PRINT_RATIO_DISCOUNT':
-                        $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['RATIO_DISCOUNT'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
-                        break;
+            if (is_set($arCurPrice)) {
+                foreach ($arCurPrice as $CODE => &$v) {
+                    switch ($CODE) {
+                        case 'BASE_PRICE':
+                            $v = $arBasePrice['VALUE'];
+                            break;
+                        case 'DISCOUNT':
+                            $v = $arCurPrice['BASE_PRICE'] - $arCurPrice['PRICE'];
+                            break;
+                        case 'PERCENT':
+                            $v = 100 - round($arCurPrice['PRICE'] / $arCurPrice['BASE_PRICE'] * 100);
+                            break;
+                        case 'PRINT_PRICE':
+                            $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
+                            break;
+                        case 'RATIO_PRICE':
+                            $v = $arCurPrice['PRICE'];
+                            break;
+                        case 'PRINT_RATIO_PRICE':
+                            $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['RATIO_PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
+                            break;
+                        case 'PRINT_BASE_PRICE':
+                            $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['BASE_PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
+                            break;
+                        case 'RATIO_BASE_PRICE':
+                            $v = $arCurPrice['BASE_PRICE'];
+                            break;
+                        case 'PRINT_RATIO_BASE_PRICE':
+                            $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['RATIO_BASE_PRICE'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
+                            break;
+                        case 'PRINT_DISCOUNT':
+                            $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['DISCOUNT'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
+                            break;
+                        case 'RATIO_DISCOUNT':
+                            $v = $arCurPrice['DISCOUNT'];
+                            break;
+                        case 'PRINT_RATIO_DISCOUNT':
+                            $v = CurrencyFormat(CCurrencyRates::ConvertCurrency($arCurPrice['RATIO_DISCOUNT'], $arCurPrice['CURRENCY'], "RUB"), "RUB");
+                            break;
+                    }
                 }
             }
         }

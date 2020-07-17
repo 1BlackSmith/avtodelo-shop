@@ -25,34 +25,16 @@ $showDiscount = $price['RATIO_PRICE'] < $price['RATIO_BASE_PRICE'];
 ?>
 
 <div class="text-nowrap">
-    <span
-        class="product-cat-price-current<?=($price['RATIO_PRICE'] < $price['RATIO_BASE_PRICE'] ? ' discount' : '')?>"
+    <span class="product-cat-price-current<?=($price['RATIO_PRICE'] < $price['RATIO_BASE_PRICE'] ? ' discount' : '')?>"
         id="<?=$itemIds['PRICE']?>">
         <?
         if (!empty($price))
         {
-            // if ($arParams['PRODUCT_DISPLAY_MODE'] === 'N' && $haveOffers)
-            // {
-
-                // echo Loc::getMessage(
-                    // 'CT_BCI_TPL_MESS_PRICE_SIMPLE_MODE',
-                    // array(
-
-                        // '#PRICE#' => $price['PRINT_RATIO_PRICE'],
-                        // '#VALUE#' => $measureRatio,
-                        // '#UNIT#' => $minOffer['ITEM_MEASURE']['TITLE']
-                    // )
-                // );
-            // }
-            // else
-            // {
-                echo $price['PRINT_RATIO_PRICE'];
-            // }
+            echo $price['PRINT_RATIO_PRICE'];
         }
         else
         {
             echo Loc::getMessage('RS_MM_BCI_CATALOG_NO_PRICE');
-
         }
         ?>
     </span>
@@ -85,4 +67,3 @@ if ($arParams['SHOW_OLD_PRICE'] === 'Y' && $arParams['SHOW_DISCOUNT_PERCENT'] !=
     </div>
     <?php
 }
-?>

@@ -129,25 +129,30 @@ $arParams['MESS_BTN_INCART'] = '<svg class="icon-cart icon-svg mr-3"><use xlink:
 					if ($arParams['SHOW_ARTNUMBER'] === 'Y')
 					{
 						?>
-						<span class="mr-3">
+						<div class="mr-3">
 							<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/id.php')); ?>
-						</span>
+						</div>
 						<?php
 					}
 					if ($arParams['USE_VOTE_RATING'] === 'Y')
 					{
 						?>
-						<span class="align-middle mr-3">
+						<div class="mr-3">
 							<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/rate.php')); ?>
-						</span>
+						</div>
 						<?php
 					}
 					if ($arParams['SHOW_MAX_QUANTITY'] !== 'N')
 					{
 						?>
-						<span>
-							<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/limit.php')); ?>
-						</span>
+						<div>
+							<?php 
+							$frame = $this->createFrame()->begin('');
+							$frame->setAnimation(true);
+							include(MyTemplate::getTemplatePart($templateFolder.'/include/limit.php')); 
+							$frame->end();
+							?>
+						</div>
 						<?php
 					}
 					?>
@@ -185,7 +190,14 @@ $arParams['MESS_BTN_INCART'] = '<svg class="icon-cart icon-svg mr-3"><use xlink:
 			</div>
 			<div class="product-cat-price-container" data-entity="price-block">
 				<?
+				$frame = $this->createFrame()->begin();
 				include(MyTemplate::getTemplatePart($templateFolder.'/include/price.php'));
+				$frame->beginStub();
+				?>
+				<span style="display: inline-block; width: 50px; height: 20px; background-color: #eee; border-radius: 5px;"></span>&nbsp;
+				<span class="product-cat-price-current">руб.</span>
+				<?php 
+				$frame->end();
 				//include(MyTemplate::getTemplatePart($templateFolder.'/include/price-bonus_my.php'));
 				?>
 			</div>
@@ -303,6 +315,7 @@ $arParams['MESS_BTN_INCART'] = '<svg class="icon-cart icon-svg mr-3"><use xlink:
 
 		<div class="product-cat-button-container">
 			<?php
+			$frame = $this->createFrame()->begin('');
 			if ($arParams['ADD_TO_BASKET_ACTION'] == 'REQUEST')
 			{
 				include(MyTemplate::getTemplatePart($templateFolder.'/include/line/actions-request.php'));
@@ -356,11 +369,16 @@ $arParams['MESS_BTN_INCART'] = '<svg class="icon-cart icon-svg mr-3"><use xlink:
 					}
 				}
 			}
+			$frame->end();
 			?>
 		</div>
-		<? if (count($actualItem['PRICES']) > 2) {
+		<? 
+		$frame = $this->createFrame()->begin('');
+		if (count($actualItem['PRICES']) > 2) {
 			include(MyTemplate::getTemplatePart($templateFolder.'/include/price-ranges.php'));
-		} ?>
+		} 
+		$frame->end();
+		?>
 		</div>
 	</div>
 </article>

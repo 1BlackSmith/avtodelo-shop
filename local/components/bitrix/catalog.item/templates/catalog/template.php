@@ -149,6 +149,7 @@ if (isset($item['CATALOG_TYPE']) && $item['CATALOG_TYPE'] != 0)
 			include($file->getPath());
 		}
 
+		$frame = $this->createFrame()->begin(''); 
 		if (!$haveOffers)
 		{
 			$jsParams = array(
@@ -348,9 +349,22 @@ if (isset($item['CATALOG_TYPE']) && $item['CATALOG_TYPE'] != 0)
 			)
 		);
 		?>
+
 		<script>
-			var <?=$obName?> = new JCCatalogItem(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);
+			if (window.frameCacheVars !== undefined) 
+			{
+		        BX.addCustomEvent("onFrameDataReceived" , function(json) {
+		            var <?=$obName?> = new JCCatalogItem(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);
+		        });
+			} else {
+		        BX.ready(function() {
+		            var <?=$obName?> = new JCCatalogItem(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);
+		        });
+			}
 		</script>
+		<?php 
+		$frame->end();
+		?>
 	</div>
 	<?
 	unset($item, $actualItem, $minOffer, $itemIds, $jsParams);

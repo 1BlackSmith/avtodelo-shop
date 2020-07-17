@@ -22,6 +22,9 @@
 		}
 
 		this.bigData = params.bigData || {enabled: false};
+		this.bigData.js.serverTime = BX.message('SERVER_TIME');
+		this.bigData.params.uid = BX.message('USER_ID');
+
 		this.container = document.querySelector('[data-entity="' + params.container + '"]');
 		this.lazyLoadContainer = document.querySelector('[data-entity="lazy-' + params.container + '"]');
 		this.showMoreButton = null;
@@ -98,7 +101,7 @@
 				BX.addClass(this.showMoreButton, 'disabled');
 				this.showMoreButton.innerHTML = BX.message('BTN_MESSAGE_LAZY_LOAD_WAITER');
 */
-        BX.addClass(this.showMoreButton, 'is-loading');
+        		BX.addClass(this.showMoreButton, 'is-loading');
 			}
 		},
 

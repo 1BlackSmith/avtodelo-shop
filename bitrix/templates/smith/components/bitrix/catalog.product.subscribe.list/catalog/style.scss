@@ -1,0 +1,13 @@
+@import '../../../../resources/sass/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+@import '../../../../resources/sass/snippets/all';
+
+$small-line-height: $font-size-base * $line-height-base * $small-font-size/100%;
+
+.product-cat {
+	&-title {
+		height: 2 * $h6-font-size * $headings-line-height;
+	}
+}

@@ -64,3 +64,4 @@ elseif ($arParams['PRODUCT_DISPLAY_MODE'] === 'Y')
 		<?
 	}
 }
+?>

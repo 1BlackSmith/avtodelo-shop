@@ -130,7 +130,7 @@ else
 					);
 				}
 				?>
-				<div id="<?=$itemIds['BASKET_ACTIONS']?>" style="display:none<?//=($actualItem['CAN_BUY'] ? '' : 'none')?>;">
+				<div id="<?=$itemIds['BASKET_ACTIONS']?>" style="display:<?=($actualItem['CAN_BUY'] ? '' : 'none')?>;">
 					<a class="btn btn-primary <?=$buttonSizeClass?>" id="<?=$itemIds['BUY_LINK']?>"
 						href="javascript:void(0)" rel="nofollow" title="<?=strip_tags($arParams['ADD_TO_BASKET_ACTION'] === 'BUY' ? $arParams['MESS_BTN_BUY'] : $arParams['MESS_BTN_ADD_TO_BASKET'])?>">
 						<?=($arParams['ADD_TO_BASKET_ACTION'] === 'BUY' ? $arParams['MESS_BTN_BUY'] : $arParams['MESS_BTN_ADD_TO_BASKET'])?>

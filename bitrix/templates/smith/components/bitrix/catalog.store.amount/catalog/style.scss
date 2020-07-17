@@ -1,0 +1,28 @@
+@import '../../../../resources/sass/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+@import '../../../../resources/sass/snippets/all';
+
+.shop-list-item {
+
+	
+	&.is-outofstock &__icon {
+		color: $extra;
+	}
+	
+	&__amount {
+		background-color: $extra;
+	}
+	
+	&.is-outofstock &__amount {
+		background-color: $extra;
+	}
+	
+	.product-cat-limit-quantity::before {
+		color: theme-color('primary');
+		left: 0;
+		margin: 0.5rem;
+		position: absolute;
+	}
+}
