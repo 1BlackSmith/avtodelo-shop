@@ -107,25 +107,30 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 					if ($arParams['SHOW_ARTNUMBER'] === 'Y')
 					{
 						?>
-						<span class="mr-3">
+						<div class="mr-3">
 							<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/id.php')); ?>
-						</span>
+						</div>
 						<?php
 					}
 					if ($arParams['USE_VOTE_RATING'] === 'Y')
 					{
 						?>
-						<span class="align-middle mr-3">
+						<div class="align-middle mr-3">
 							<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/rate.php')); ?>
-						</span>
+						</div>
 						<?php
 					}
 					if ($arParams['SHOW_MAX_QUANTITY'] !== 'N')
 					{
 						?>
-						<span>
-							<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/limit.php')); ?>
-						</span>
+						<div>
+							<?php 
+							$frame = $this->createFrame()->begin('');
+							$frame->setAnimation(true);
+							include(MyTemplate::getTemplatePart($templateFolder.'/include/limit.php')); 
+							$frame->end();
+							?>
+						</div>
 						<?php
 					}
 					?>
@@ -160,11 +165,15 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 						case 'quantity':
 							if ($arParams['USE_PRODUCT_QUANTITY'])
 							{
-								?>
+							?>
 								<div class="product-cat-info-container product-cat-hidden" data-entity="quantity-block">
-									<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/quantity.php')); ?>
+									<?php 
+									$frame = $this->createFrame()->begin('');
+									include(MyTemplate::getTemplatePart($templateFolder.'/include/quantity.php')); 
+									$frame->end();
+									?>
 								</div>
-								<?php
+							<?php
 							}
 							break;
 
@@ -262,7 +271,14 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 
 	<div class="" data-entity="price-block">
 		<?
+		$frame = $this->createFrame()->begin();
 		include(MyTemplate::getTemplatePart($templateFolder.'/include/price.php'));
+		$frame->beginStub();
+		?>
+		<span style="display: inline-block; width: 50px; height: 20px; background-color: #eee; border-radius: 5px;"></span>&nbsp;
+		<span class="product-cat-price-current">руб.</span>
+		<?php 
+		$frame->end();
 		//include(MyTemplate::getTemplatePart($templateFolder.'/include/price-bonus_my.php'));
 		?>
 	</div>
@@ -272,14 +288,22 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 
 	<div class="product-cat-buttons d-none d-sm-block" data-entity="buttons-block">
 		<div class="product-cat-button-container">
-			<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/table/actions.php')); ?>
+			<?php 
+			$frame = $this->createFrame()->begin('');
+			include(MyTemplate::getTemplatePart($templateFolder.'/include/table/actions.php')); 
+			$frame->end();
+			?>
 		</div>
 	</div>
 
 			</div>
 		</div>
-		<? if (count($actualItem['PRICES']) > 2) {
+		<? 
+		$frame = $this->createFrame()->begin('');
+		if (count($actualItem['PRICES']) > 2) {
 			include(MyTemplate::getTemplatePart($templateFolder.'/include/price-ranges.php'));
-		} ?>
+		}
+		$frame->end();
+		?>
 	</div>
 </article>

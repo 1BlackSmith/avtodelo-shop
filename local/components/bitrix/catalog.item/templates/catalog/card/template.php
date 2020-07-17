@@ -55,7 +55,11 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 		}
 
 		include(MyTemplate::getTemplatePart($templateFolder.'/include/picture-image.php'));
+
+		$frame = $this->createFrame()->begin('');
 		include(MyTemplate::getTemplatePart($templateFolder.'/include/picture-labels.php'));
+		$frame->end();
+		
 		include(MyTemplate::getTemplatePart($templateFolder.'/include/picture-deals.php'));
 		include(MyTemplate::getTemplatePart($templateFolder.'/include/picture-gift.php'));
 		include(MyTemplate::getTemplatePart($templateFolder.'/include/picture-slider.php'));
@@ -123,7 +127,12 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 			{
 				?>
 				<div class="product-cat-info-container d-none d-sm-block mb-0 small text-extra">
-					<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/limit.php')); ?>
+					<?php 
+					$frame = $this->createFrame()->begin('');
+					$frame->setAnimation(true);
+					include(MyTemplate::getTemplatePart($templateFolder.'/include/limit.php')); 
+					$frame->end();
+					?>
 				</div>
 				<?php
 			}
@@ -159,20 +168,38 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 			</div>
 			<div class="product-cat-info-container product-cat-info-container--price d-flex justify-content-between align-items-center<?/*product-cat-actions-container*/?>">
 				<div class="product-cat-price-container" data-entity="price-block">
-					<?
+					<?php
+					$frame = $this->createFrame()->begin();
 					include(MyTemplate::getTemplatePart($templateFolder.'/include/price.php'));
+					$frame->beginStub();
+					?>
+					<span style="display: inline-block; width: 50px; height: 20px; background-color: #eee; border-radius: 5px;"></span>&nbsp;
+					<span class="product-cat-price-current">руб.</span>
+					<?php 
+					$frame->end();
+
 					//include(MyTemplate::getTemplatePart($templateFolder.'/include/price-bonus_my.php'));
 					?>
 				</div>
 				<div class="product-cat-buttons d-none d-sm-block flex-shrink-1" data-entity="buttons-block">
-				  <div class="product-cat-button-container">
-		  				<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/card/actions.php')); ?>
-				  </div>
+					<div class="product-cat-button-container">
+						<?php 
+						$frame = $this->createFrame()->begin('');
+						$frame->setAnimation(true);
+						include(MyTemplate::getTemplatePart($templateFolder.'/include/card/actions.php')); 
+						$frame->end();
+						?>
+					</div>
 				</div>
 			</div>
-			<? if (count($actualItem['PRICES']) > 2) {
+			<?php
+			$frame = $this->createFrame()->begin('');
+			$frame->setAnimation(true);
+			if (count($actualItem['PRICES']) > 2) {
 				include(MyTemplate::getTemplatePart($templateFolder.'/include/price-ranges.php'));
-			} ?>
+			} 
+			$frame->end();
+			?>
 		</div>
 
 
@@ -196,6 +223,8 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 							break;
 
 						case 'quantity':
+							$frame = $this->createFrame()->begin('');
+							$frame->setAnimation(true);
 							if ($arParams['USE_PRODUCT_QUANTITY'])
 							{
 								?>
@@ -204,6 +233,7 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 								</div>
 								<?php
 							}
+							$frame->end();
 							break;
 
 						case 'buttons':

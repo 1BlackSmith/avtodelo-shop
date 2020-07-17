@@ -55,7 +55,7 @@ if ($this->StartResultCache()) {
             'UF_SECTION_COLOR',
             'UF_BANNER_IMAGE',
             'UF_BANNER_LINK',
-            'UF_SECTION_ICON',
+            'UF_SECT ION_ICON',
             //'UF_DISPLAY'
 
         ));
@@ -105,10 +105,10 @@ if ($this->StartResultCache()) {
             $arResult['ELEMENT_LINKS'][$arSection['ID']] = array();
         }
         
-        // $rsMenuType = CUserFieldEnum::GetList(array(), array("ID" => $arMenuTypeIds));
-        // while($arMenuType = $rsMenuType->GetNext()) {
-        //     $arResult['MENU_TYPES'][$arMenuType['ID']] = $arMenuType;
-        // }
+        $rsMenuType = CUserFieldEnum::GetList(array(), array("ID" => $arMenuTypeIds));
+        while($arMenuType = $rsMenuType->GetNext()) {
+            $arResult['MENU_TYPES'][$arMenuType['ID']] = $arMenuType;
+        }
         
         $this->EndResultCache();
     }

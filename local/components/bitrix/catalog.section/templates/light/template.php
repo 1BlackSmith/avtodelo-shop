@@ -768,6 +768,17 @@ $layout->start();
 $signer = new \Bitrix\Main\Security\Sign\Signer;
 $signedTemplate = $signer->sign($templateName, 'catalog.section');
 $signedParams = $signer->sign(base64_encode(serialize($arResult['ORIGINAL_PARAMETERS'])), 'catalog.section');
+
+$frame = $this->createFrame()->begin('');
+$arResult['BIG_DATA']['js']['serverTime'] = false;
+$arResult['BIG_DATA']['params']['uid'] = false;
+// $arResult['BIG_DATA']['params']['aid'] = false;
+?>
+<script>
+	var <?=$obName?>BigDataParams = <?=CUtil::PhpToJSObject($arResult['BIG_DATA'])?>;
+</script>
+<?php 
+$frame->end();
 ?>
 <script>
 <?/*
@@ -796,20 +807,25 @@ $signedParams = $signer->sign(base64_encode(serialize($arResult['ORIGINAL_PARAME
 		SITE_ID: '<?=CUtil::JSEscape($component->getSiteId())?>'
 	});
 */?>
-	var <?=$obName?> = new JCCatalogSectionComponent({
-		siteId: '<?=CUtil::JSEscape($component->getSiteId())?>',
-		componentPath: '<?=CUtil::JSEscape($componentPath)?>',
-		navParams: <?=CUtil::PhpToJSObject($navParams)?>,
-		deferredLoad: false, // enable it for deferred load
-		initiallyShowHeader: '<?=!empty($arResult['ITEM_ROWS'])?>',
-		bigData: <?=CUtil::PhpToJSObject($arResult['BIG_DATA'])?>,
-		lazyLoad: !!'<?=$showLazyLoad?>',
-		loadOnScroll: !!'<?=($arParams['LOAD_ON_SCROLL'] === 'Y')?>',
-		template: '<?=CUtil::JSEscape($signedTemplate)?>',
-		ajaxId: '<?=CUtil::JSEscape($arParams['AJAX_ID'])?>',
-		parameters: '<?=CUtil::JSEscape($signedParams)?>',
-		container: '<?=$containerName?>'
-	});
+	if (window.frameCacheVars !== undefined) 
+	{
+        BX.addCustomEvent("onFrameDataReceived" , function(json) {
+            var <?=$obName?> = new JCCatalogSectionComponent({
+				siteId: '<?=CUtil::JSEscape($component->getSiteId())?>',
+				componentPath: '<?=CUtil::JSEscape($componentPath)?>',
+				navParams: <?=CUtil::PhpToJSObject($navParams)?>,
+				deferredLoad: false, // enable it for deferred load
+				initiallyShowHeader: '<?=!empty($arResult['ITEM_ROWS'])?>',
+				bigData: <?=$obName?>BigDataParams,
+				lazyLoad: !!'<?=$showLazyLoad?>',
+				loadOnScroll: !!'<?=($arParams['LOAD_ON_SCROLL'] === 'Y')?>',
+				template: '<?=CUtil::JSEscape($signedTemplate)?>',
+				ajaxId: '<?=CUtil::JSEscape($arParams['AJAX_ID'])?>',
+				parameters: '<?=CUtil::JSEscape($signedParams)?>',
+				container: '<?=$containerName?>'
+			});
+        });
+	}
 </script>
 
 <!-- section-container -->
