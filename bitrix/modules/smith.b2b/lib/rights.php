@@ -105,7 +105,7 @@ class Rights
     {
         $storesIDs = ManagerForStoreTable::getList(array(
             'select' => array('STORE_ID'),
-            'filter' => array('=USER_ID' => $this->useID)
+            'filter' => array('=USER_ID' => $this->userID)
         ))->fetchAll();
 
         if (count($storesIDs)) {

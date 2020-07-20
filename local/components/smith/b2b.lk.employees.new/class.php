@@ -63,6 +63,7 @@ class B2BEmployeesNew extends \CBitrixComponent
 					    'LID' => SITE_ID,
 					    'C_FIELDS' => array(
 					    	'USER_NAME' => $user['NAME'],
+					    	'USER_EMAIL' => $user['EMAIL'],
 					        'COMPANY_NAME' => $this->profile->getCompanyName(),
 					        'CONFIRM_URL' => $this->getConfirmUrl($args)
 					    ),
