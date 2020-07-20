@@ -312,10 +312,18 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 						<?/*<?=($arParams['IMAGE_RESOLUTION'] === '1by1' ? 'product-detail-slider-block-square' : '')?>*/?>"
 						data-entity="images-slider-block">
 						<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/picture/image.php')); ?>
-						<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/picture/labels.php')); ?>
+						<?php 
+						$frame = $this->createFrame()->begin('');
+						include(MyTemplate::getTemplatePart($templateFolder.'/include/picture/labels.php')); 
+						$frame->end();
+						?>
 						<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/picture/deals.php')); ?>
 						<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/picture/gift.php')); ?>
-						<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/picture/actions.php')); ?>
+						<?php 
+						$frame = $this->createFrame()->begin('');
+						include(MyTemplate::getTemplatePart($templateFolder.'/include/picture/actions.php')); 
+						$frame->end();
+						?>
 					</div>
 					<div class="product-detail-slider-dots owl-carousel owl-loaded">
 						<div class="owl-dots" id="<?=$itemIds['BIG_SLIDER_DOTS_ID']?>" data-slider-dots="<?=$itemIds['BIG_SLIDER_ID']?>"></div>
@@ -364,11 +372,20 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 							?>
 							<div class="mb-6">
 								<?php
+								$frame = $this->createFrame()->begin();
 								include(MyTemplate::getTemplatePart($templateFolder.'/include/info/price.php'));
+								$frame->beginStub();
+								?>
+								<span style="display: inline-block; width: 50px; height: 20px; background-color: #eee; border-radius: 5px;"></span>&nbsp;
+								<span class="product-cat-price-current">руб.</span>
+								<?php 
+								$frame->end();
 
+								$frame = $this->createFrame()->begin('');
 								if (count($arResult['PRICES_ALLOW']) > 2) {
 									include(MyTemplate::getTemplatePart($templateFolder.'/include/info/price-ranges.php'));
 								}
+								$frame->end();
 								?>
 							</div>
 							<?
@@ -381,13 +398,19 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 									<div id="<?=$itemIds['BASKET_ACTIONS_ID']?>" style="<?=(($actualItem['CAN_BUY'] || $arParams['BUY_ON_CAN_BUY'] == 'Y') ? '' : 'display: none;')?>" class="float-left">
 										<div>
 											<div class="d-inline-block align-middle mr-sm-3">
-												<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/info/actions.php')); ?>
+												<?php 
+												$frame = $this->createFrame()->begin('');
+												include(MyTemplate::getTemplatePart($templateFolder.'/include/info/actions.php')); 
+												$frame->end();
+												?>
 											</div>
 											<?php
+											$frame = $this->createFrame()->begin('');
 											if ($arParams['USE_PRODUCT_QUANTITY'])
 											{
 												include(MyTemplate::getTemplatePart($templateFolder.'/include/info/quantity.php'));
 											}
+											$frame->end();
 											?>
 										</div>
 										<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/info/buy1click.php')); ?>
@@ -485,8 +508,10 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 										<div class="col-12 col-md-auto">
 											<?php
 											include(MyTemplate::getTemplatePart($templateFolder.'/include/info/id.php'));
+											$frame = $this->createFrame()->begin('');
 											include(MyTemplate::getTemplatePart($templateFolder.'/include/info/rate.php'));
 											include(MyTemplate::getTemplatePart($templateFolder.'/include/info/limit.php'));
+											$frame->end();
 											?>
 										</div>
 										<div class="col-12 col-md-auto">
@@ -638,6 +663,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 							break;
 
 						case 'stock':
+							$frame = $this->createFrame()->begin('');
 							if ($arParams['USE_STORE'] == 'Y' && $arResult['MODULES']['catalog'])
 							{
 								?>
@@ -649,6 +675,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 								<?php
 								$bActiveTab = true;
 							}
+							$frame->end();
 							break;
 
 						case 'set':
