@@ -392,6 +392,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 							break;
 
 						case 'buttons':
+							$frame = $this->createFrame()->begin('');
 							?>
 							<div class="mb-6">
 								<div class="product-cat-button-container clearfix" data-entity="main-button-container">
@@ -399,18 +400,14 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 										<div>
 											<div class="d-inline-block align-middle mr-sm-3">
 												<?php 
-												$frame = $this->createFrame()->begin('');
 												include(MyTemplate::getTemplatePart($templateFolder.'/include/info/actions.php')); 
-												$frame->end();
 												?>
 											</div>
 											<?php
-											$frame = $this->createFrame()->begin('');
 											if ($arParams['USE_PRODUCT_QUANTITY'])
 											{
 												include(MyTemplate::getTemplatePart($templateFolder.'/include/info/quantity.php'));
 											}
-											$frame->end();
 											?>
 										</div>
 										<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/info/buy1click.php')); ?>
@@ -421,6 +418,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 								</div>
 							</div>
 							<?
+							$frame->end();
 							break;
 
 						case 'preview':
