@@ -1789,7 +1789,7 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 			</div>
 			<?
 		}
-
+		$frame = $this->createFrame()->begin(''); 
 		$jsParams = array(
 			'CONFIG' => array(
 				'USE_CATALOG' => $arResult['CATALOG'],
@@ -1949,7 +1949,16 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 		LOWER_PRICE: '<?=GetMessageJS('RS_MM_BCE_CATALOG_LOWER_PRICE')?>',
 	});
 
-	var <?=$obName?> = new JCCatalogElement(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);
+	if (window.frameCacheVars !== undefined) {
+        BX.addCustomEvent("onFrameDataReceived" , function(json) {
+            var <?=$obName?> = new JCCatalogElement(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);
+        });
+	} else {
+        BX.ready(function() {
+            var <?=$obName?> = new JCCatalogElement(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);
+        });
+	}
 </script>
 <?php
+$frame->end();
 unset($actualItem, $itemIds, $jsParams);
