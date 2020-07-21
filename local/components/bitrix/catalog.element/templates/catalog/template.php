@@ -1789,7 +1789,6 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 			</div>
 			<?
 		}
-		$frame = $this->createFrame()->begin(''); 
 		$jsParams = array(
 			'CONFIG' => array(
 				'USE_CATALOG' => $arResult['CATALOG'],
@@ -1960,5 +1959,4 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 	}
 </script>
 <?php
-$frame->end();
 unset($actualItem, $itemIds, $jsParams);
