@@ -115,6 +115,7 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 			<? endif; ?>
 
 			<?php
+			$frame = $this->createFrame()->begin('');
 			if ($arParams['USE_VOTE_RATING'] === 'Y')
 			{
 				?>
@@ -127,15 +128,11 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 			{
 				?>
 				<div class="product-cat-info-container d-none d-sm-block mb-0 small text-extra">
-					<?php 
-					$frame = $this->createFrame()->begin('');
-					$frame->setAnimation(true);
-					include(MyTemplate::getTemplatePart($templateFolder.'/include/limit.php')); 
-					$frame->end();
-					?>
+					<?php include(MyTemplate::getTemplatePart($templateFolder.'/include/limit.php')); ?>
 				</div>
 				<?php
 			}
+			$frame->end();
 			?>
 		</div>
 
@@ -185,7 +182,6 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 					<div class="product-cat-button-container">
 						<?php 
 						$frame = $this->createFrame()->begin('');
-						$frame->setAnimation(true);
 						include(MyTemplate::getTemplatePart($templateFolder.'/include/card/actions.php')); 
 						$frame->end();
 						?>
@@ -194,7 +190,6 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 			</div>
 			<?php
 			$frame = $this->createFrame()->begin('');
-			$frame->setAnimation(true);
 			if (count($actualItem['PRICES']) > 2) {
 				include(MyTemplate::getTemplatePart($templateFolder.'/include/price-ranges.php'));
 			} 
@@ -224,7 +219,6 @@ $arParams['~MESS_BTN_SUBSCRIBE'] = '<svg class="icon-cart icon-svg"><use xlink:h
 
 						case 'quantity':
 							$frame = $this->createFrame()->begin('');
-							$frame->setAnimation(true);
 							if ($arParams['USE_PRODUCT_QUANTITY'])
 							{
 								?>
