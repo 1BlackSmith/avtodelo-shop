@@ -7,3 +7,5 @@ include_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/php_interface/handlers/mail_ha
 include_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/php_interface/handlers/register_handlers.php');
 
 //Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r(123, true));
+
+//Bitrix\Main\Diag\Debug::dumpToFile($_SERVER, "", "dump.log");

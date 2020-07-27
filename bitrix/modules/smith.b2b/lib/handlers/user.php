@@ -176,9 +176,9 @@ class User
 
             $arManagers = array(
                 "REFERENCE" =>
-                    array("Потапов Д.Н.", "Потапова Н.В.", "Николаева Е.Н.", "Козьяков Р.Н.", "Титов А.А.", "Савоськин А.В.", "Кузнецов П.К."),
+                    array("Потапов Д.Н.", "Потапова Н.В.", "Голосков И.Л.", "Савоськин А.В.", "Кузнецов П.К."),
                 "REFERENCE_ID" =>
-                    array(108, 96, 98, 100, 101, 99, 33),
+                    array(108, 96, 921, 99, 135),
             );
 
             $arOwnership = array(
@@ -316,7 +316,6 @@ class User
             </tr>';
 
             $rows .= self::getDelimiter('Индивидуальные торговые соглашения');
-            \Bitrix\Main\IO\File::putFileContents($_SERVER['DOCUMENT_ROOT'] . '/log.txt', print_r($individualAgreements, true));
             foreach ($individualAgreements as $agreement) {
                 $productId = $agreement['PRODUCT'];
                 $productName = $arIndividualProducts[$productId]['NAME'];
