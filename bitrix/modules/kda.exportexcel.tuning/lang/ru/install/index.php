@@ -1,0 +1,17 @@
+<?
+$MESS["KDA_EXPORTEXCEL_TUNING_MODULE_NAME"] = "Расширение модуля \"Экспорт в Excel\"";
+$MESS["KDA_EXPORTEXCEL_TUNING_MODULE_DESCRIPTION"] = "";
+$MESS["KDA_EXPORTEXCEL_TUNING_MODULE_PARTNER_NAME"] = "Mr. Smith";
+$MESS["KDA_EXPORTEXCEL_TUNING_MODULE_PARTNER_URI"] = "1BlackSmith.work@gmail.com";
+
+$MESS["KDA_EXPORTEXCEL_TUNING_INSTALL_ERROR_VERSION"] = "Ошибка установки!<br>Данный модуль поддерживает только версию ядра D7.";
+$MESS["KDA_EXPORTEXCEL_TUNING_INSTALL_ALREADY_INSTALLED"] = "Ошибка установки!<br>Модуль уже установлен.";
+$MESS["KDA_EXPORTEXCEL_TUNING_INSTALL_KDA_NOT_ISTALLED"] = "Не установлен модуль \"Экспорт в Excel\"";
+
+$MESS["KDA_EXPORTEXCEL_TUNING_INSTALL_TITLE"] = "Установка модуля";
+$MESS["KDA_EXPORTEXCEL_TUNING_UNINSTALL_TITLE"] = "Удаление модуля";
+
+$MESS["KDA_EXPORTEXCEL_TUNING_DENIED"]  = "Доступ запрещен";
+$MESS["KDA_EXPORTEXCEL_TUNING_READ_COMPONENT"] = "Чтение";
+$MESS["KDA_EXPORTEXCEL_TUNING_WRITE_SETTINGS"] = "Запись";
+$MESS["KDA_EXPORTEXCEL_TUNING_FULL"] = "Полный доступ";
