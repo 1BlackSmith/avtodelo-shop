@@ -36,7 +36,7 @@ $CONTAINER_ID = CUtil::JSEscape($CONTAINER_ID);
 		</a>
 		<form action="<?echo $arResult["FORM_ACTION"]?>" class="search-popup__form" id="<?echo $CONTAINER_ID?>">
 			<div class="form-group bmd-form-group">
-				<label for="<?echo $INPUT_ID?>" class="bmd-label-floating"><?=Loc::getMessage('CT_BST_SEARCH_BUTTON');?></label>
+				<label for="<?echo $INPUT_ID?>" class="bmd-label-floating"><?=Loc::getMessage('SEARCH_BUTTON');?></label>
 				<input id="<?echo $INPUT_ID?>" class="bmd-form-control" type="text" name="q" value="" maxlength="50" autocomplete="off" />
 			</div>
 			<button name="s" type="submit" class="search-popup__form-button">

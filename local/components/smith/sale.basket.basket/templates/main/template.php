@@ -236,7 +236,6 @@ $layout->start();
 							</div>
 							<div class="basket-client-search-field" data-entity="basket-client-search">
 								<?php if (Manager::getByID($USER->GetID())): 
-									Bitrix\Main\Diag\Debug::dumpToFile($arResult['B2B_MANAGER_CURRENT_CLIENT'], "", "dump.log");
 									?>
 									<input type="text" class="form-control"
 										placeholder="<?=Loc::getMessage('SBB_BASKET_CLIENT_SEARCH')?>"

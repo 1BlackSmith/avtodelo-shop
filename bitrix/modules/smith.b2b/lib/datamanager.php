@@ -32,11 +32,12 @@ class DataManager
         return $q->exec()->fetchObject();
     }
 
-    protected static function getProfilesObj($filter, $select = ['*'])
+    protected static function getProfilesObj($filter, $select = ['*'], $order = ['ID' => 'ASC'])
     {
         $q = new Entity\Query(CompanyTable::getEntity());
         $q->setSelect($select);
         $q->setFilter($filter);
+        $q->setOrder($order);
         return $q->exec()->fetchCollection();
     }
 
@@ -49,27 +50,30 @@ class DataManager
         return $q->exec()->fetchObject();
     }
 
-    protected static function getCompaniesObj($filter, $select = ['*'])
+    protected static function getCompaniesObj($filter, $select = ['*'], $order = ['ID' => 'ASC'])
     {
         $q = new Entity\Query(CompanyPropTable::getEntity());
         $q->setSelect($select);
         $q->setFilter($filter);
+        $q->setOrder($order);
         return $q->exec()->fetchCollection();
     }
 
-    protected static function getStoresObj($filter, $select = ['*'])
+    protected static function getStoresObj($filter, $select = ['*'], $order = ['ID' => 'ASC'])
     {
         $q = new Entity\Query(CompanyStoreTable::getEntity());
         $q->setSelect($select);
         $q->setFilter($filter);
+        $q->setOrder($order);
         return $q->exec()->fetchCollection();
     }
 
-    protected static function getEmployeesObj($filter, $select = ['*'])
+    protected static function getEmployeesObj($filter, $select = ['*'], $order = ['ID' => 'ASC'])
     {
         $q = new Entity\Query(ManagerForStoreTable::getEntity());
         $q->setSelect($select);
         $q->setFilter($filter);
+        $q->setOrder($order);
         return $q->exec()->fetchCollection();
     }
 
@@ -82,11 +86,12 @@ class DataManager
         return $q->exec()->fetchObject();
     }
 
-    protected static function getTradeAgreementsGroupObj($filter, $select = ['*'])
+    protected static function getTradeAgreementsGroupObj($filter, $select = ['*'], $order = ['ID' => 'ASC'])
     {
         $q = new Entity\Query(TradeAgreementGroupTable::getEntity());
         $q->setSelect($select);
         $q->setFilter($filter);
+        $q->setOrder($order);
         return $q->exec()->fetchCollection();
     }
 
@@ -99,11 +104,12 @@ class DataManager
         return $q->exec()->fetchObject();
     }
 
-    protected static function getTradeAgreementsIndividualObj($filter, $select = ['*'])
+    protected static function getTradeAgreementsIndividualObj($filter, $select = ['*'], $order = ['ID' => 'ASC'])
     {
         $q = new Entity\Query(TradeAgreementIndividualTable::getEntity());
         $q->setSelect($select);
         $q->setFilter($filter);
+        $q->setOrder($order);
         return $q->exec()->fetchCollection();
     }
 
