@@ -3,6 +3,7 @@ $MESS["SBB_DELETE"] = "Удалить";
 $MESS["SBB_FILTER_EMPTY_RESULT"] = "По данному запросу товаров не найдено";
 $MESS["SBB_BASKET_ITEM_WARNING"] = "В вашей корзине <a href=\"javascript:void(0)\" data-entity=\"basket-items-warning-count\"></a> требует внимания.";
 $MESS["SBB_BASKET_FILTER"] = "Фильтр";
+$MESS["SBB_BASKET_CLIENT_SEARCH"] = "Оформить на себя";
 $MESS["SBB_BASKET_ITEMS_WARNING"] = "c ошибками";
 $MESS["SBB_NOT_AVAILABLE_ITEM"] = "недоступен";
 $MESS["SBB_NOT_AVAILABLE_ITEM_2"] = "недоступно";

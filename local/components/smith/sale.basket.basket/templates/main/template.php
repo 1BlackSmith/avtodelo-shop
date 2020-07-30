@@ -135,6 +135,7 @@ if ($arParams['USE_GIFTS'] === 'Y')
 //$this->addExternalJs($templateFolder.'/js/mustache.js');
 $this->addExternalJs('/bitrix/js/ui/mustache/mustache.js');
 $this->addExternalJs($templateFolder.'/js/action-pool.js');
+$this->addExternalJs($templateFolder.'/js/client-search.js');
 $this->addExternalJs($templateFolder.'/js/filter.js');
 $this->addExternalJs($templateFolder.'/js/component.js');
 
@@ -233,15 +234,17 @@ $layout->start();
 									<span class="form-control-feedback basket-clear" data-entity="basket-filter-clear-btn"></span>
 								</div>
 							</div>
-							<div class="basket-items-client-select-field">
-								<?php if (Manager::getByID($USER->GetID())): ?>
-									<?= SelectBoxFromArray(
-			                            "CLIENT_ID", 
-			                            $arResult['B2B_MANAGER_CLIENTS'], 
-			                            $APPLICATION->get_cookie("B2B_CLIENT_ID", COption::GetOptionString("main", "cookie_name", "BITRIX_SM")), 
-			                            0, 'class="form-control" style="width: 100%;" data-entity="basket-client-select"'
-			                        ) ?>
-								<?php endif ?>
+							<div class="basket-client-search-field" data-entity="basket-client-search">
+								<?php if (Manager::getByID($USER->GetID())): 
+									Bitrix\Main\Diag\Debug::dumpToFile($arResult['B2B_MANAGER_CURRENT_CLIENT'], "", "dump.log");
+									?>
+									<input type="text" class="form-control"
+										placeholder="<?=Loc::getMessage('SBB_BASKET_CLIENT_SEARCH')?>"
+										value="<?=$arResult['B2B_MANAGER_CURRENT_CLIENT']['name']?>"
+										data-entity="basket-client-search-input">
+									<span class="form-control-feedback basket-clear" data-entity="basket-client-search-clear-btn"></span>
+									<ul class="basket-client-search-result" data-entity="basket-client-search-result"></ul>
+								<?php endif; ?>
 							</div>
 							<div class="basket-items-list-header-filter">
 								<a href="javascript:void(0)" class="btn btn-quantity basket-items-list-header-filter-item btn-secondary"

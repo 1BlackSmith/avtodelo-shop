@@ -78,6 +78,7 @@
 
 			this.initializeFilter();
 			this.applyBasketResult(parameters.result);
+			this.initializeClientSearch();
 			this.initializeActionPool();
 
 			if (this.useItemsFilter)
@@ -260,12 +261,6 @@
 				this.getEntity(this.getCacheNode(this.ids.itemListWrapper), 'basket-items-clear'),
 				'click',
 				BX.proxy(this.clearAction, this)
-			);
-
-			BX.bind(
-				this.getEntity(this.getCacheNode(this.ids.itemListWrapper), 'basket-client-select'), 
-				'change', 
-				BX.proxy(this.selectClient, this)
 			);
 			/* /CUSTOM */
 		},
@@ -665,6 +660,13 @@
 		initializeFilter: function()
 		{
 			this.filter = new BX.Sale.BasketFilter(this);
+		},
+
+		initializeClientSearch: function()
+		{
+			if (typeof this.result.B2B_MANAGER_CLIENTS !== 'undefined') {
+				this.search = new BX.Sale.ClientSearch(this, this.result.B2B_MANAGER_CLIENTS);
+			}
 		},
 
 		/**

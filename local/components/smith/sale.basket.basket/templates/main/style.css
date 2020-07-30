@@ -250,7 +250,7 @@
         -ms-flex: 3;
             flex: 3;
     text-align: right; }
-.basket-items-client-select-field {
+.basket-client-search-field {
   -webkit-transition: 300ms all ease;
   -o-transition: 300ms all ease;
   transition: 300ms all ease;
@@ -263,6 +263,27 @@
   width: 300px;
   margin-left: 20px;
   margin-right: 20px; }
+.basket-client-search-result {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  display: none;
+  margin-top: -1px;
+  margin-bottom: 0;
+  border: 1px solid #ddd;
+  padding: 0;
+  list-style: none;
+  background-color: #fff;
+  box-shadow: 0 20px 30px rgba(0,0,0,.05);
+  z-index: 9999; }
+.basket-client-search-result > li {
+  cursor: pointer;
+  padding: .375rem .75rem;
+  border-bottom: 1px solid #ddd; }
+.basket-client-search-result > li:last-child {
+  padding: .375rem .75rem;
+  border-bottom: none; }
 
 .basket-items-list-item {
   /* PREVIEW & NAME */
@@ -761,9 +782,9 @@
     width: 100%; }
     .basket-items-search-field + .basket-items-list-header-filter {
       text-align: left; }
-  .basket-items-client-select-field {
+  .basket-client-search-field {
     width: 100%;
-    padding-top: 10px;
+    margin-top: 10px;
     margin-left: 0;
     margin-right: 0; }
   -basket-item-block-actions {

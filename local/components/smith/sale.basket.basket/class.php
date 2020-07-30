@@ -582,7 +582,12 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 		if ($this->manager)
 		{
+			$currentClient = $APPLICATION->get_cookie(
+				"B2B_CLIENT_ID", 
+				COption::GetOptionString("main", "cookie_name", "BITRIX_SM")
+			);
 			$this->arResult['B2B_MANAGER_CLIENTS'] = $this->manager->getClientsSelect();
+			$this->arResult['B2B_MANAGER_CURRENT_CLIENT'] = $this->arResult['B2B_MANAGER_CLIENTS'][$currentClient];
 		}
 
 		$arUserAccount = CSaleUserAccount::GetByUserID($userId, 'RUB');

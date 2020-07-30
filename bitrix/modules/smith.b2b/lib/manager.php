@@ -11,9 +11,6 @@ class Manager extends DataManager
 {
     const MANAGERS = [
         108 => 'Потапов ДН',
-        98 => 'Куликова ЕН',
-        100 => 'Козьяков РН',
-        101 => 'Титов АА',
         33 => 'Кузнецов ПК',
         96 => 'Потапова НВ',
         99 => 'Савоськин АВ'
@@ -38,16 +35,20 @@ class Manager extends DataManager
 
     public function getClientsSelect()
     {
-        $values = [
-            "REFERENCE" => array("Оформить на себя"), 
-            "REFERENCE_ID" => array('self')
-        ];
+        $values = [];
 
-        $companies = self::getCompaniesObj(['COMPANY_LK_ID' => $this->getClientsIds()], ['ID', 'COMPANY_LK_ID', 'BRAND']);
+        $companies = self::getCompaniesObj(
+            ['COMPANY_LK_ID' => $this->getClientsIds()], 
+            ['ID', 'COMPANY_LK_ID', 'BRAND'],
+            ['NAME' => 'ASC']
+        );
+
         foreach ($companies as $company) {
             $companyProfileData = CUser::GetByID($company->getCompanyLkId())->fetch();
-            $values['REFERENCE'][] = $companyProfileData['NAME']." ".$companyProfileData['LAST_NAME'];
-            $values['REFERENCE_ID'][] = $company->getCompanyLkId();
+            $values[$company->getCompanyLkId()] = array(
+                'name' => $companyProfileData['NAME']." ".$companyProfileData['LAST_NAME'],
+                'id' => $company->getCompanyLkId(),
+            );
         }
 
         return $values;
