@@ -1491,6 +1491,10 @@ class Date extends Base
 
 	static function getSettings(array $input, $reload)
 	{
+		/**
+		 * Добавил дополнительные свойства
+		 * @author Кузнецов Павел
+		 */
 		return array(
 			'TIME'           => array('TYPE' => 'Y/N', 'LABEL' => Loc::getMessage('INPUT_DATE_TIME'          ), 'ONCLICK' => $reload),
 			'DISABLED_INPUT' => array('TYPE' => 'Y/N', 'LABEL' => Loc::getMessage('INPUT_DATE_DISABLED_INPUT')),

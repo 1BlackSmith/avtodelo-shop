@@ -66,7 +66,13 @@ $arAllOptions = array(
 	array("1C_EXPORT_FINAL_ORDERS", GetMessage("SALE_1C_EXPORT_FINAL_ORDERS"), "", Array("list", $arStatuses), array(),""),
 	array("1C_FINAL_STATUS_ON_DELIVERY", GetMessage("SALE_1C_FINAL_STATUS_ON_DELIVERY"), "F", Array("list", $arStatuses), array(),""),
 	array("1C_REPLACE_CURRENCY", GetMessage("SALE_1C_REPLACE_CURRENCY"), GetMessage("SALE_1C_RUB"), Array("text"), array(),""),
+
+	/**
+	 * Дополнительный параметр "Не выгружать оплаты"
+	 * @author Кузнецов Павел
+	 */
 	array("1C_NOT_EXPORT_PAYMENTS", GetMessage("SALE_1C_NOT_EXPORT_PAYMENTS"), "", Array("mlist", 3, $arPaySystems), array(),""),
+	
 	array("1C_IMPORT_DEFAULT_PS", GetMessage("SALE_1C_IMPORT_DEFAULT_PS_C"), "", Array("list", $arPaySystems), array(),""),
 	array("1C_IMPORT_DEFAULT_PS_B", GetMessage("SALE_1C_IMPORT_DEFAULT_PS_B"), "", Array("list", $arPaySystems), array(),""),
 	array("1C_IMPORT_DEFAULT_PS_A", GetMessage("SALE_1C_IMPORT_DEFAULT_PS_A"), "", Array("list", $arPaySystems), array(),""),
