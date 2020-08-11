@@ -16,6 +16,9 @@ use Bitrix\Sale\Order;
 
 final class ImportOneCPackageSale extends ImportOneCPackage
 {
+	/**
+	 * @author Кузнецов Павел
+	 */
 	const RETAIL    = 3;
 	const WHOLESALE = 4;
 	const PAY_ERROR = 19;
@@ -39,6 +42,9 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 
 		if($documentOrder instanceof OrderDocument)
 		{
+			/**
+			 * @author Кузнецов Павел
+			 */
 			$orderAmount = $this->getOrderAmount($documentOrder);
 
 			//region Presset - create Shipment if Service in the Order by information from 1C
@@ -68,9 +74,18 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 				{
 					$paymentFields = $document->getFieldValues();
 					
+					/**
+					 * Изменил логику подстановки ID платежной системы
+					 * @author Кузнецов Павел
+					 */
 					$paymentFields['REK_VALUES']['PAY_SYSTEM_ID'] = $this->getPaySystem($documentOrder);
+
 					$paymentFields['REK_VALUES']['PAY_SYSTEM_ID_DEFAULT'] = $this->getDefaultPaySystem($documentOrder);
 
+					/**
+					 * Не проставлять оплату по платежной системе Сбербанк, если не было оплаты на сайте
+					 * @author Кузнецов Павел
+					 */
 					if (!$this->isOrderPaid($documentOrder) && 
 						$paymentFields['REK_VALUES']['1C_PAYED'] == 'Y' &&
 						$paymentFields['REK_VALUES']['PAY_SYSTEM_ID'] === self::SBER_PAY) 
@@ -80,7 +95,11 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 						$paymentFields['REK_VALUES']['1C_PAYED_DATE'] = false;
 					}
 
-					if ($this->checkOrderAmount($paymentFields['AMOUNT'], $orderAmount)) {
+					/**
+					 * Не добавляет оплату, превышающую сумму заказа
+					 * @author Кузнецов Павел
+					 */
+					if ($this->checkOrderAmount((float)$paymentFields['AMOUNT'], $orderAmount)) {
 						$document->setFields($paymentFields);
 					}
 				}
@@ -88,6 +107,11 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 				if($document instanceof OneC\ShipmentDocument)
 				{
 					$shimpentFields = $document->getFieldValues();
+
+					/**
+					 * Проверка на отгруженный заказ (не срабатывает стандартный функционал)
+					 * @author Кузнецов Павел
+					 */
 					if ($this->isDeducted($documentOrder)) {
 						$shimpentFields['REK_VALUES']['DEDUCTED'] = 'Y';
 					}
@@ -132,23 +156,37 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 		return isset($fields['REK_VALUES']['1C_TRACKING_NUMBER'])?$fields['REK_VALUES']['1C_TRACKING_NUMBER']:null;
 	}
 
+	/**
+	 * @author Кузнецов Павел
+	 * @param float $paymentAmount - сумма в оплате
+	 * @param float $orderAmount - сумма в заказе
+	 * @return true если сумма не превысила сумму заказа
+	 */
 	protected function checkOrderAmount($paymentAmount, &$orderAmount)
 	{
 		$orderAmount -= $paymentAmount;
-
 		if ($orderAmount < 0) {
 			return false;
 		}
-
 		return true;
 	}
 
+	/**
+	 * @author Кузнецов Павел
+	 * @param OneC\OrderDocument $document
+	 * @return float сумма в заказе
+	 */
 	protected function getOrderAmount(OneC\OrderDocument $document)
 	{
 		$fields = $document->getFieldValues();
-		return $fields['AMOUNT'];
+		return (float)$fields['AMOUNT'];
 	}
 
+	/**
+	 * @author Кузнецов Павел
+	 * @param OneC\OrderDocument $document
+	 * @return true если заказ оплачен
+	 */
 	protected function isOrderPaid(OneC\OrderDocument $document) 
 	{
 		$fields = $document->getFieldValues();
@@ -162,8 +200,9 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 	}
 
 	/**
+	 * @author Кузнецов Павел
 	 * @param OneC\OrderDocument $document
-	 * @return true if shipment is deducted
+	 * @return true если заказ отгружен
 	 */
 	protected function isDeducted(OneC\OrderDocument $document)
 	{
@@ -178,6 +217,8 @@ final class ImportOneCPackageSale extends ImportOneCPackage
 	}
 
 	/**
+	 * Подставляет ID платежной системы в соответсвии с соглашениями
+	 * @author Кузнецов Павел
 	 * @param OneC\OrderDocument $document
 	 * @return null|int
 	 */
