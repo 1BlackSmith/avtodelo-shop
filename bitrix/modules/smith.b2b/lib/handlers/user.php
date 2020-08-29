@@ -8,6 +8,7 @@ use Bitrix\Main\Application;
 use \CAdminCalendar;
 use Smith\B2B\Company;
 use Smith\B2B\CompanyBase;
+use Smith\B2B\Manager;
 
 class User
 {
@@ -174,12 +175,7 @@ class User
             \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/smith.b2b/admin/user_edit.js');
 
 
-            $arManagers = array(
-                "REFERENCE" =>
-                    array("Потапов Д.Н.", "Потапова Н.В.", "Кузнецов П.К.", "Савоськин А.В."),
-                "REFERENCE_ID" =>
-                    array(108, 96, 33, 99),
-            );
+            $arManagers = Manager::getManagersSelect();
 
             $arOwnership = array(
                 "REFERENCE" =>

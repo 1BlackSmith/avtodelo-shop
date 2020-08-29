@@ -9,12 +9,6 @@ use Smith\B2B\CompanyBase;
 
 class Manager extends DataManager
 {
-    const MANAGERS = [
-        108 => 'Потапов ДН',
-        33 => 'Кузнецов ПК',
-        96 => 'Потапова НВ',
-        99 => 'Савоськин АВ'
-    ];
     const MODULE_ID = 'smith.b2b';
 
     protected $managerId;
@@ -26,6 +20,31 @@ class Manager extends DataManager
             return false;
 
         return new self($managerId);
+    }
+
+    public static function getManagers()
+    {
+        $arManagers = array();
+
+        $arFilter = array(
+            'GROUPS_ID' => array(Option::get(self::MODULE_ID, 'B2B_MANAGER_GROUP_ID'))
+        );
+        $arParams = array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME');
+        $rsManagers = CUser::GetList(($by="id"), ($order="asc"), $arFilter, $arParams);
+        while ($arManager = $rsManagers->Fetch()) {
+            $arManagers[$arManager['ID']] = $arManager['LAST_NAME'] . ' ' . substr($arManager['NAME'], 0, 1) . substr($arManager['SECOND_NAME'], 0, 1);
+        }
+
+        return $arManagers;
+    }
+
+    public static function getManagersSelect()
+    {
+        $arManagers = static::getManagers();
+        return array(
+            "REFERENCE" => array_values($arManagers),
+            "REFERENCE_ID" => array_keys($arManagers),
+        );
     }
 
     public function __construct($managerId)
