@@ -4,7 +4,7 @@
 		"autoprefixer": "^9.5.0",
 		"copy-webpack-plugin": "^4.5.1",
 		"event-stream": "^3.3.4",
-		"gulp": "^3.9.1",
+		"gulp": "^4.0.2",
 		"gulp-autoprefixer": "^6.0.0",
 		"gulp-clean-css": "^3.9.4",
 		"gulp-copy": "^4.0.0",
